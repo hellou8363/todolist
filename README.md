@@ -24,7 +24,8 @@ Todo를 등록, 수정, 삭제할 수 있는 서비스
 ![ERD](https://github.com/hellou8363/todolist/assets/89592727/fbdaf0d7-6934-4f1b-ab3e-ccc4d4f2215b)
 
 ## API 명세서
-![RESTAPI](https://github.com/hellou8363/todolist/assets/89592727/ca2e4b5b-f48d-4e2a-b935-4d22cd4fa4ca)
+![RESTAPI](https://github.com/hellou8363/todolist/assets/89592727/bdabc979-6dd2-425d-955e-9689a2df179b)
+
 
 ## 결과 화면
 (준비중...)
