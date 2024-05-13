@@ -1,6 +1,7 @@
 package org.zerock.todolist.domain.todo.model
 
 import jakarta.persistence.*
+import org.zerock.todolist.domain.comment.model.Comment
 import org.zerock.todolist.domain.todo.dto.TodoResponse
 import java.time.LocalDateTime
 
@@ -21,14 +22,16 @@ class Todo(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "completed")
-    var completed: TodoCompleted = TodoCompleted.FALSE
-) {
+    var completed: TodoCompleted = TodoCompleted.FALSE,
+
+    @OneToMany(mappedBy = "todo", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    var comments: MutableList<Comment> = mutableListOf(),
+    ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 }
 
 fun Todo.toResponse(): TodoResponse {
-    return TodoResponse(id!!, title, content, writer, createAt, completed)
+    return TodoResponse(id!!, title, content, writer, createAt, completed, comments)
 }
-
