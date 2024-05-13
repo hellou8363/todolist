@@ -1,6 +1,6 @@
 package org.zerock.todolist.domain.todo.dto
 
-import com.fasterxml.jackson.annotation.JsonFormat
+import org.zerock.todolist.domain.todo.model.TodoCompleted
 import java.time.LocalDateTime
 
 data class TodoResponse(
@@ -9,4 +9,5 @@ data class TodoResponse(
     val content: String,
     val writer: String,
     val createAt: LocalDateTime,
+    val completed: TodoCompleted,
 )

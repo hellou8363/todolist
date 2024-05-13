@@ -18,6 +18,10 @@ class Todo(
 
     @Column(name = "create_at")
     var createAt: LocalDateTime = LocalDateTime.now(),
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "completed")
+    var completed: TodoCompleted = TodoCompleted.FALSE
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +29,6 @@ class Todo(
 }
 
 fun Todo.toResponse(): TodoResponse {
-    return TodoResponse(id!!, title, content, writer, createAt)
+    return TodoResponse(id!!, title, content, writer, createAt, completed)
 }
 
