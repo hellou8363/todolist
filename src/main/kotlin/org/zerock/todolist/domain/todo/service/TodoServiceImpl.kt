@@ -72,8 +72,4 @@ class TodoServiceImpl(
         val todo = todoRepository.findByIdOrNull(todoId) ?: throw ModelNotFoundException("Todo", todoId)
         todoRepository.delete(todo)
     }
-
-    override fun searchTodo(todoId: Long, query: String?): List<TodoResponse> {
-        TODO("Not yet implemented")
-    }
 }
