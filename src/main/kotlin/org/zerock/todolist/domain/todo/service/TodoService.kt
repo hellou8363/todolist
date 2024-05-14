@@ -7,7 +7,7 @@ import org.zerock.todolist.domain.todo.dto.UpdateTodoRequest
 
 interface TodoService {
 
-    fun getAllTodoList(order: String?): List<TodoListResponse>
+    fun getAllTodoList(order: String, writer: String?): List<TodoListResponse>
 
     fun getTodoById(todoId: Long): TodoResponse
 

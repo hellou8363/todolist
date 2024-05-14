@@ -7,6 +7,7 @@ import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
 import org.zerock.todolist.domain.todo.dto.TodoListResponse
 import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.todo.dto.UpdateTodoRequest
+import org.zerock.todolist.domain.todo.model.SortingStatus
 import org.zerock.todolist.domain.todo.service.TodoService
 
 @RestController
@@ -17,9 +18,10 @@ class TodoController(
 
     @GetMapping
     fun getTodoList(
-        @RequestParam order: String? = null,
+        @RequestParam order: String = SortingStatus.DESC.name,
+        @RequestParam writer: String? = null,
     ): ResponseEntity<List<TodoListResponse>> {
-        return ResponseEntity.status(HttpStatus.OK).body(todoService.getAllTodoList(order))
+        return ResponseEntity.status(HttpStatus.OK).body(todoService.getAllTodoList(order, writer))
     }
 
     @GetMapping("/{todoId}")
@@ -43,6 +45,6 @@ class TodoController(
     @DeleteMapping("/{todoId}")
     fun deleteTodo(@PathVariable todoId: Long): ResponseEntity<Unit> {
         todoService.deleteTodo(todoId)
-        return ResponseEntity.status(HttpStatus.OK).build()
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }

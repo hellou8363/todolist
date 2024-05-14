@@ -4,4 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.zerock.todolist.domain.todo.model.Todo
 
 interface TodoRepository : JpaRepository<Todo, Long> {
+
+    fun findByWriter(writer: String): List<Todo>
 }

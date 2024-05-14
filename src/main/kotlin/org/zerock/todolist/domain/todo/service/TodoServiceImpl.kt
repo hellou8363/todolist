@@ -19,21 +19,24 @@ class TodoServiceImpl(
     private val todoRepository: TodoRepository
 ) : TodoService {
 
-    // STEP 1에서 작성일 기준 내림차순이 기본 정렬, STEP 3에서 오름차순, 내림차순 값을 받지 않았을 때의 기본 정렬을 따르는지 예외를 던져야 하는지 모르겠음
-    override fun getAllTodoList(order: String?): List<TodoListResponse> {
-        val value = SortingStatus.values().any { it.name == order }
+    override fun getAllTodoList(order: String, writer: String?): List<TodoListResponse> {
+        if (writer != null) {
+            return todoRepository.findByWriter(writer).map { it.toMultiResponse() }
+        } else {
+            val value = SortingStatus.values().any { it.name == order }
 
-        if(!value) { // ASC, DESC가 아닌 경우 예외 발생
-            throw IllegalArgumentException("Input must be either asc or desc.")
+            if (!value) {
+                throw IllegalArgumentException("Input must be either ASC or DESC.")
+            }
+
+            val ascendingOrder = todoRepository.findAll().map { it.toMultiResponse() }.sortedBy { it.createAt }
+
+            if (order == SortingStatus.ASC.name) {
+                return ascendingOrder
+            }
+
+            return ascendingOrder.reversed()
         }
-
-        val ascendingOrder = todoRepository.findAll().map { it.toMultiResponse() }.sortedBy { it.createAt }
-
-        if (order == SortingStatus.ASC.name) { // 기본 정렬이 날짜 기준 내림차순이므로 오름차순 여부만 검사, 아니면 기본 정렬
-            return ascendingOrder
-        }
-
-        return ascendingOrder.reversed()
     }
 
     override fun getTodoById(todoId: Long): TodoResponse {
@@ -68,5 +71,9 @@ class TodoServiceImpl(
     override fun deleteTodo(todoId: Long) {
         val todo = todoRepository.findByIdOrNull(todoId) ?: throw ModelNotFoundException("Todo", todoId)
         todoRepository.delete(todo)
+    }
+
+    override fun searchTodo(todoId: Long, query: String?): List<TodoResponse> {
+        TODO("Not yet implemented")
     }
 }
