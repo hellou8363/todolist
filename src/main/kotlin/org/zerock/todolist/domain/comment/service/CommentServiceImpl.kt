@@ -64,7 +64,7 @@ class CommentServiceImpl(
         if (comment.writer == request.writer && comment.password == request.password) {
             return commentRepository.delete(comment)
         } else {
-            throw IllegalStateException("writer or password does not match.")
+            throw IllegalArgumentException("writer or password does not match.")
         }
     }
 }
