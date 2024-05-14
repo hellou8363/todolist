@@ -51,7 +51,8 @@ class CommentServiceImpl(
 
             return commentRepository.save(comment).toResponse()
         } else {
-            throw IllegalStateException("writer or password does not match.")
+            throw IllegalArgumentException("writer or password does not match.")
+
         }
     }
 
