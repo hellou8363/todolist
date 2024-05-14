@@ -4,7 +4,6 @@ import org.zerock.todolist.domain.comment.dto.CommentResponse
 import org.zerock.todolist.domain.comment.dto.CreateCommentRequest
 import org.zerock.todolist.domain.comment.dto.DeleteCommentRequest
 import org.zerock.todolist.domain.comment.dto.UpdateCommentRequest
-import org.zerock.todolist.domain.comment.model.Comment
 
 interface CommentService {
 
@@ -12,7 +11,7 @@ interface CommentService {
 
     fun getCommentById(commentId: Long): CommentResponse
 
-    fun createComment(todoId : Long, request: CreateCommentRequest): CommentResponse
+    fun createComment(todoId: Long, request: CreateCommentRequest): CommentResponse
 
     fun updateComment(todoId: Long, commentId: Long, request: UpdateCommentRequest): CommentResponse
 
