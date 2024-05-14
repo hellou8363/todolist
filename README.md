@@ -31,6 +31,8 @@ Todo 관리와 댓글로 소통할 수 있는 서비스
 ![step1-api](https://github.com/hellou8363/todolist/assets/89592727/9f11a462-669d-4446-8e09-055474dce70f)
 
 </div></details>
+<details>
+    <summary>STEP 2 : Use Case Diagram, ERD, API 명세서</summary><div>
 
 ## Use Case Diagram
 ![step2-usecasediagram](https://github.com/hellou8363/todolist/assets/89592727/9cbee50e-f1b3-4beb-a84f-2f8a08b63b18)
@@ -42,6 +44,15 @@ Todo 관리와 댓글로 소통할 수 있는 서비스
 ## API 명세서
 ![step2-api](https://github.com/hellou8363/todolist/assets/89592727/ed4c86c6-aa35-49b9-bbb5-09d3867c32b4)
 
+</div></details>
+
+## Use Case Diagram
+![step3-api](https://github.com/hellou8363/todolist/assets/89592727/bb65c070-cdef-435a-bd8e-3299f9b6b764)
+
+## ERD
+![step2-erd](https://github.com/hellou8363/todolist/assets/89592727/ed05d893-8c50-479d-85aa-d6a2e41e39cc)
+
+## API 명세서
 
 
 
