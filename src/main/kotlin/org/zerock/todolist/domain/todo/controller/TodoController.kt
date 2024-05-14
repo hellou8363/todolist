@@ -16,8 +16,10 @@ class TodoController(
 ) {
 
     @GetMapping
-    fun getTodoList(): ResponseEntity<List<TodoListResponse>> {
-        return ResponseEntity.status(HttpStatus.OK).body(todoService.getAllTodoList())
+    fun getTodoList(
+        @RequestParam order: String? = null,
+    ): ResponseEntity<List<TodoListResponse>> {
+        return ResponseEntity.status(HttpStatus.OK).body(todoService.getAllTodoList(order))
     }
 
     @GetMapping("/{todoId}")
@@ -40,6 +42,7 @@ class TodoController(
 
     @DeleteMapping("/{todoId}")
     fun deleteTodo(@PathVariable todoId: Long): ResponseEntity<Unit> {
-        return ResponseEntity.status(HttpStatus.OK).body(todoService.deleteTodo(todoId))
+        todoService.deleteTodo(todoId)
+        return ResponseEntity.status(HttpStatus.OK).build()
     }
 }
