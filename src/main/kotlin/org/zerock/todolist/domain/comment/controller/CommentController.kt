@@ -40,7 +40,7 @@ class CommentController(
         @PathVariable commentId: Long,
         @RequestBody deleteCommentRequest: DeleteCommentRequest
     ): ResponseEntity<Unit> {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .body(commentService.deleteComment(todoId, commentId, deleteCommentRequest))
+        commentService.deleteComment(todoId, commentId, deleteCommentRequest)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }
