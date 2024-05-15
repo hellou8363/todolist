@@ -38,23 +38,56 @@ Todo 관리와 댓글로 소통할 수 있는 서비스
 ![step2-usecasediagram](https://github.com/hellou8363/todolist/assets/89592727/9cbee50e-f1b3-4beb-a84f-2f8a08b63b18)
 
 ## ERD
-![step2-erd](https://github.com/hellou8363/todolist/assets/89592727/ed05d893-8c50-479d-85aa-d6a2e41e39cc)
-
+![step2-erd](https://github.com/hellou8363/todolist/assets/89592727/5151142b-0aab-412a-86f9-575ab9735a83)
 
 ## API 명세서
 ![step2-api](https://github.com/hellou8363/todolist/assets/89592727/ed4c86c6-aa35-49b9-bbb5-09d3867c32b4)
 
 </div></details>
+<details>
+    <summary>STEP 3 : Use Case Diagram, ERD, API 명세서</summary><div>
 
 ## Use Case Diagram
 ![step3-api](https://github.com/hellou8363/todolist/assets/89592727/bb65c070-cdef-435a-bd8e-3299f9b6b764)
 
 ## ERD
-![step2-erd](https://github.com/hellou8363/todolist/assets/89592727/ed05d893-8c50-479d-85aa-d6a2e41e39cc)
+![step2-erd](https://github.com/hellou8363/todolist/assets/89592727/5151142b-0aab-412a-86f9-575ab9735a83)
 
 ## API 명세서
+![step3-api](https://github.com/hellou8363/todolist/assets/89592727/85e6c0e6-7fe9-492c-955d-56382ac3040c)
 
+</div></details>
 
+## Use Case Diagram
+(작성중...)
+
+## ERD
+![step4-erd](https://github.com/hellou8363/todolist/assets/89592727/4be336be-b224-4b8f-8b1b-f37568c9f8e6)
+
+## API 명세서
+(작성중...)
+
+## 테이블 생성
+``` 
+CREATE TABLE todo (
+id BIGSERIAL PRIMARY KEY,
+title TEXT NOT NULL,
+content TEXT NOT NULL,
+writer TEXT NOT NULL,
+create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+completed TEXT NOT NULL
+);
+
+CREATE TABLE comment (
+id BIGSERIAL PRIMARY KEY,
+content TEXT NOT NULL,
+writer TEXT NOT NULL,
+password TEXT NOT NULL,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+todo_id BIGINT,
+constraint fk_comment_todo FOREIGN KEY (todo_id) REFERENCES todo ON DELETE CASCADE
+);
+```
 
 ## 결과 화면
 (준비중...)
