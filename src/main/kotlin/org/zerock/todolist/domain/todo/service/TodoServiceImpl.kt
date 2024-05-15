@@ -5,12 +5,10 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.zerock.todolist.domain.exception.ModelNotFoundException
 import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
-import org.zerock.todolist.domain.todo.dto.TodoListResponse
 import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.todo.dto.UpdateTodoRequest
 import org.zerock.todolist.domain.todo.model.SortingStatus
 import org.zerock.todolist.domain.todo.model.Todo
-import org.zerock.todolist.domain.todo.model.toMultiResponse
 import org.zerock.todolist.domain.todo.model.toResponse
 import org.zerock.todolist.domain.todo.repository.TodoRepository
 
@@ -19,9 +17,9 @@ class TodoServiceImpl(
     private val todoRepository: TodoRepository
 ) : TodoService {
 
-    override fun getAllTodoList(order: String, writer: String?): List<TodoListResponse> {
+    override fun getAllTodoList(order: String, writer: String?): List<TodoResponse> {
         if (writer != null) {
-            return todoRepository.findByWriter(writer).map { it.toMultiResponse() }
+            return todoRepository.findByWriter(writer).map { it.toResponse() }
         } else {
             val value = SortingStatus.values().any { it.name == order }
 
@@ -29,7 +27,7 @@ class TodoServiceImpl(
                 throw IllegalArgumentException("Input must be either ASC or DESC.")
             }
 
-            val ascendingOrder = todoRepository.findAll().map { it.toMultiResponse() }.sortedBy { it.createAt }
+            val ascendingOrder = todoRepository.findAll().map { it.toResponse() }.sortedBy { it.createAt }
 
             if (order == SortingStatus.ASC.name) {
                 return ascendingOrder

@@ -38,6 +38,6 @@ fun Todo.toResponse(): TodoResponse {
     return TodoResponse(id!!, title, content, writer, createAt, completed, comments.map { it.toResponse() })
 }
 
-fun Todo.toMultiResponse(): TodoListResponse {
-    return TodoListResponse(id!!, title, content, writer, createAt, completed)
-}
+//fun Todo.toMultiResponse(): TodoListResponse {
+//    return TodoListResponse(id!!, title, content, writer, createAt, completed)
+//}

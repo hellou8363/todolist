@@ -21,7 +21,7 @@ class TodoController(
     fun getTodoList(
         @RequestParam order: String = SortingStatus.DESC.name,
         @RequestParam writer: String? = null,
-    ): ResponseEntity<List<TodoListResponse>> {
+    ): ResponseEntity<List<TodoResponse>> {
         return ResponseEntity.status(HttpStatus.OK).body(todoService.getAllTodoList(order, writer))
     }
 
