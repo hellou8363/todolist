@@ -10,12 +10,12 @@ import org.zerock.todolist.domain.comment.dto.UpdateCommentRequest
 import org.zerock.todolist.domain.comment.service.CommentService
 
 @RestController
-@RequestMapping("/todos")
+@RequestMapping("/todos/{todoId}")
 class CommentController(
     private val commentService: CommentService
 ) {
 
-    @PostMapping("/{todoId}/comments")
+    @PostMapping("/comments")
     fun createComment(
         @PathVariable todoId: Long,
         @RequestBody createCommentRequest: CreateCommentRequest
@@ -24,7 +24,7 @@ class CommentController(
             .body(commentService.createComment(todoId, createCommentRequest))
     }
 
-    @PutMapping("/{todoId}/comments/{commentId}")
+    @PutMapping("/comments/{commentId}")
     fun updateComment(
         @PathVariable todoId: Long,
         @PathVariable commentId: Long,
@@ -34,7 +34,7 @@ class CommentController(
             .body(commentService.updateComment(todoId, commentId, updateCommentRequest))
     }
 
-    @DeleteMapping("/{todoId}/comments/{commentId}")
+    @DeleteMapping("/comments/{commentId}")
     fun deleteComment(
         @PathVariable todoId: Long,
         @PathVariable commentId: Long,
