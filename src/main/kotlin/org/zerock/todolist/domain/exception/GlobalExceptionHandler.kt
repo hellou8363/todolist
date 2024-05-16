@@ -1,5 +1,6 @@
 package org.zerock.todolist.domain.exception
 
+import org.springframework.data.mapping.PropertyReferenceException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.BindingResult
@@ -23,5 +24,10 @@ class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException, bindingResult: BindingResult): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse(bindingResult.fieldError?.defaultMessage))
+    }
+
+    @ExceptionHandler(PropertyReferenceException::class)
+    fun handlePropertyReferenceException(e: PropertyReferenceException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse(e.message))
     }
 }
