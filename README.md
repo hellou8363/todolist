@@ -14,7 +14,7 @@ Todo 관리와 댓글로 소통할 수 있는 서비스
 2024.05.10 ~ (진행중)
 
 ## 개발 도구 및 환경
-<img src="https://img.shields.io/badge/kotlin-%237F52FF.svg?style=for-the-badge&logo=kotlin&logoColor=white"/> <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"> <img src="https://camo.githubusercontent.com/3c0e585bf7fbcca3f142c9c5de6bf415189bfebf5ebe71f59d2efd6272fd8d10/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f537072696e672044617461204a70612d3644423333463f7374796c653d666f722d7468652d6261646765266c6f676f3d737072696e67266c6f676f436f6c6f723d7768697465"> 
+<img src="https://img.shields.io/badge/kotlin-%237F52FF.svg?style=for-the-badge&logo=kotlin&logoColor=white"/> <img src="https://img.shields.io/badge/jdk17-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white"/> <img src="https://img.shields.io/badge/springboot3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"> <img src="https://camo.githubusercontent.com/3c0e585bf7fbcca3f142c9c5de6bf415189bfebf5ebe71f59d2efd6272fd8d10/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f537072696e672044617461204a70612d3644423333463f7374796c653d666f722d7468652d6261646765266c6f676f3d737072696e67266c6f676f436f6c6f723d7768697465"> 
 <img src="https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white"> <img src="https://img.shields.io/badge/IntelliJIDEA-000000.svg?style=for-the-badge&logo=intellij-idea&logoColor=white"/> <img src="https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white"/> <img src="https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white">
 
 ---
@@ -59,7 +59,7 @@ Todo 관리와 댓글로 소통할 수 있는 서비스
 </div></details>
 
 ## Use Case Diagram
-(작성중...)
+![step4-usecasediagram](https://github.com/hellou8363/todolist/assets/89592727/5f87dd2e-5123-4e0d-aee7-cf1b13700e2c)
 
 ## ERD
 ![step4-erd](https://github.com/hellou8363/todolist/assets/89592727/4be336be-b224-4b8f-8b1b-f37568c9f8e6)
@@ -70,22 +70,22 @@ Todo 관리와 댓글로 소통할 수 있는 서비스
 ## 테이블 생성
 ``` 
 CREATE TABLE todo (
-id BIGSERIAL PRIMARY KEY,
-title TEXT NOT NULL,
-content TEXT NOT NULL,
-writer TEXT NOT NULL,
-create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-completed TEXT NOT NULL
+    id BIGSERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    writer TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed TEXT NOT NULL
 );
 
 CREATE TABLE comment (
-id BIGSERIAL PRIMARY KEY,
-content TEXT NOT NULL,
-writer TEXT NOT NULL,
-password TEXT NOT NULL,
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-todo_id BIGINT,
-constraint fk_comment_todo FOREIGN KEY (todo_id) REFERENCES todo ON DELETE CASCADE
+    id BIGSERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    writer TEXT NOT NULL,
+    password TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    todo_id BIGINT,
+    constraint fk_comment_todo FOREIGN KEY (todo_id) REFERENCES todo ON DELETE CASCADE
 );
 ```
 
