@@ -3,7 +3,6 @@ package org.zerock.todolist.domain.todo.model
 import jakarta.persistence.*
 import org.zerock.todolist.domain.comment.model.Comment
 import org.zerock.todolist.domain.comment.model.toResponse
-import org.zerock.todolist.domain.todo.dto.TodoListResponse
 import org.zerock.todolist.domain.todo.dto.TodoResponse
 import java.time.LocalDateTime
 
@@ -19,8 +18,8 @@ class Todo(
     @Column(name = "writer")
     var writer: String,
 
-    @Column(name = "create_at")
-    var createAt: LocalDateTime = LocalDateTime.now(),
+    @Column(name = "created_at")
+    var createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Enumerated(EnumType.STRING)
     @Column(name = "completed")
@@ -35,7 +34,7 @@ class Todo(
 }
 
 fun Todo.toResponse(): TodoResponse {
-    return TodoResponse(id!!, title, content, writer, createAt, completed, comments.map { it.toResponse() })
+    return TodoResponse(id!!, title, content, writer, createdAt, completed, comments.map { it.toResponse() })
 }
 
 //fun Todo.toMultiResponse(): TodoListResponse {

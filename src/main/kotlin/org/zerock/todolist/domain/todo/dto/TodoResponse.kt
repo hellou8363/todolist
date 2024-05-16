@@ -9,7 +9,7 @@ data class TodoResponse(
     val title: String,
     val content: String,
     val writer: String,
-    val createAt: LocalDateTime,
+    val createdAt: LocalDateTime,
     val completed: TodoCompleted,
     val comments: List<CommentResponse>
 )
