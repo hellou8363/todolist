@@ -1,5 +1,7 @@
 package org.zerock.todolist.domain.todo.service
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -7,7 +9,6 @@ import org.zerock.todolist.domain.exception.ModelNotFoundException
 import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
 import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.todo.dto.UpdateTodoRequest
-import org.zerock.todolist.domain.todo.model.SortingStatus
 import org.zerock.todolist.domain.todo.model.Todo
 import org.zerock.todolist.domain.todo.model.toResponse
 import org.zerock.todolist.domain.todo.repository.TodoRepository
@@ -17,23 +18,11 @@ class TodoServiceImpl(
     private val todoRepository: TodoRepository
 ) : TodoService {
 
-    override fun getAllTodoList(order: String, writer: String?): List<TodoResponse> {
+    override fun getAllTodoList(pageable: Pageable, writer: String?): Page<TodoResponse> {
         if (writer != null) {
-            return todoRepository.findByWriter(writer).map { it.toResponse() }
+            return todoRepository.findByWriter(writer, pageable).map { it.toResponse() }
         } else {
-            val value = SortingStatus.values().any { it.name == order }
-
-            if (!value) {
-                throw IllegalArgumentException("Input must be either ASC or DESC.")
-            }
-
-            val ascendingOrder = todoRepository.findAll().map { it.toResponse() }.sortedBy { it.createAt }
-
-            if (order == SortingStatus.ASC.name) {
-                return ascendingOrder
-            }
-
-            return ascendingOrder.reversed()
+            return todoRepository.findAll(pageable).map { it.toResponse() }
         }
     }
 
@@ -70,4 +59,22 @@ class TodoServiceImpl(
         val todo = todoRepository.findByIdOrNull(todoId) ?: throw ModelNotFoundException("Todo", todoId)
         todoRepository.delete(todo)
     }
+
+//    override fun paging(pageable: Pageable): Page<Todo> {
+//        val todo = QTodo.todo
+//
+//        val query = from(todo)
+//
+//        query.where(todo.id.gt(pageable.offset))
+////        query.orderBy(pageable.) // TODO: 정렬 기준을 받아 오름차순, 내림차순 정렬
+//        query.limit(pageable.pageSize.toLong())
+//
+//        this.querydsl?.applyPagination(pageable, query)
+//
+//        val content = query.fetch()
+//
+//        val totalCount = query.fetchCount()
+//
+//        return PageImpl(content, pageable, totalCount)
+//    }
 }

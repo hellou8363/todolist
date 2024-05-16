@@ -1,13 +1,15 @@
 package org.zerock.todolist.domain.todo.service
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
-import org.zerock.todolist.domain.todo.dto.TodoListResponse
 import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.todo.dto.UpdateTodoRequest
+import org.zerock.todolist.domain.todo.model.Todo
 
 interface TodoService {
 
-    fun getAllTodoList(order: String, writer: String?): List<TodoResponse>
+    fun getAllTodoList(pageable: Pageable, writer: String?): Page<TodoResponse>
 
     fun getTodoById(todoId: Long): TodoResponse
 
