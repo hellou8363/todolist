@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable
 import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
 import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.todo.dto.UpdateTodoRequest
-import org.zerock.todolist.domain.todo.model.Todo
 
 interface TodoService {
 
@@ -13,9 +12,9 @@ interface TodoService {
 
     fun getTodoById(todoId: Long): TodoResponse
 
-    fun createTodo(request: CreateTodoRequest): TodoResponse
+    fun createTodo(request: CreateTodoRequest, userEmail: String?): TodoResponse
 
-    fun updateTodo(todoId: Long, request: UpdateTodoRequest): TodoResponse
+    fun updateTodo(todoId: Long, request: UpdateTodoRequest, userEmail: String?): TodoResponse
 
-    fun deleteTodo(todoId: Long)
+    fun deleteTodo(todoId: Long, userEmail: String?)
 }

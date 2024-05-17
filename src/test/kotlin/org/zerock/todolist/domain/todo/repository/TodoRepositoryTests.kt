@@ -28,7 +28,7 @@ class TodoRepositoryTests {
     @Test
     @DisplayName("Todo 전체 목록 조회(작성일 기준 내림차순 정렬)")
     fun selectAllTest() {
-        println(todoRepository.findAll().map { it.toResponse() }.sortedBy { it.createAt }.reversed())
+        println(todoRepository.findAll().map { it.toResponse() }.sortedBy { it.createdAt }.reversed())
     }
 
     @Test

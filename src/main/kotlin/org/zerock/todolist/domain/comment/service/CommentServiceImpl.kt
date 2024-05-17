@@ -10,13 +10,16 @@ import org.zerock.todolist.domain.comment.dto.UpdateCommentRequest
 import org.zerock.todolist.domain.comment.model.Comment
 import org.zerock.todolist.domain.comment.model.toResponse
 import org.zerock.todolist.domain.comment.repository.CommentRepository
+import org.zerock.todolist.domain.exception.CustomAccessDeniedException
 import org.zerock.todolist.domain.exception.ModelNotFoundException
 import org.zerock.todolist.domain.todo.repository.TodoRepository
+import org.zerock.todolist.domain.user.repository.UserRepository
 
 @Service
 class CommentServiceImpl(
     private val commentRepository: CommentRepository,
-    private val todoRepository: TodoRepository
+    private val todoRepository: TodoRepository,
+    private val userRepository: UserRepository,
 ) : CommentService {
     override fun getAllCommentList(): List<CommentResponse> {
         return commentRepository.findAll().map { it.toResponse() }.sortedBy { it.createdAt }.reversed()
@@ -28,22 +31,30 @@ class CommentServiceImpl(
     }
 
     @Transactional
-    override fun createComment(todoId: Long, request: CreateCommentRequest): CommentResponse {
+    override fun createComment(todoId: Long, request: CreateCommentRequest, userEmail: String?): CommentResponse {
+        val user = userEmail?.let { userRepository.findByEmail(it) } ?: throw ModelNotFoundException("User", null)
         val todo = todoRepository.findByIdOrNull(todoId) ?: throw ModelNotFoundException("Todo", todoId)
+
         return commentRepository.save(
             Comment(
                 content = request.content,
                 writer = request.writer,
                 password = request.password,
-                todo = todo
+                todo = todo,
+                user = user
             )
         ).toResponse()
     }
 
     @Transactional
-    override fun updateComment(todoId: Long, commentId: Long, request: UpdateCommentRequest): CommentResponse {
+    override fun updateComment(todoId: Long, commentId: Long, request: UpdateCommentRequest, userEmail: String?): CommentResponse {
+        val user = userEmail?.let { userRepository.findByEmail(it) } ?: throw ModelNotFoundException("User", null)
         val comment =
             commentRepository.findByTodoIdAndId(todoId, commentId) ?: throw ModelNotFoundException("Comment", commentId)
+
+        if (comment.user != user) {
+            throw CustomAccessDeniedException("You do not have access.")
+        }
 
         if (comment.writer == request.writer && comment.password == request.password) {
             comment.content = request.content
@@ -57,9 +68,14 @@ class CommentServiceImpl(
     }
 
     @Transactional
-    override fun deleteComment(todoId: Long, commentId: Long, request: DeleteCommentRequest) {
+    override fun deleteComment(todoId: Long, commentId: Long, request: DeleteCommentRequest, userEmail: String?) {
+        val user = userEmail?.let { userRepository.findByEmail(it) } ?: throw ModelNotFoundException("User", null)
         val comment =
             commentRepository.findByTodoIdAndId(todoId, commentId) ?: throw ModelNotFoundException("Comment", commentId)
+
+        if (comment.user != user) {
+            throw CustomAccessDeniedException("You do not have access.")
+        }
 
         if (comment.writer == request.writer && comment.password == request.password) {
             return commentRepository.delete(comment)
