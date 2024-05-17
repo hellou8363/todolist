@@ -4,6 +4,7 @@ import jakarta.persistence.*
 import org.zerock.todolist.domain.comment.model.Comment
 import org.zerock.todolist.domain.comment.model.toResponse
 import org.zerock.todolist.domain.todo.dto.TodoResponse
+import org.zerock.todolist.domain.user.model.User
 import java.time.LocalDateTime
 
 @Entity
@@ -19,24 +20,24 @@ class Todo(
     var writer: String,
 
     @Column(name = "created_at")
-    var createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Enumerated(EnumType.STRING)
     @Column(name = "completed")
     var completed: TodoCompleted = TodoCompleted.FALSE,
 
     @OneToMany(mappedBy = "todo", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    var comments: MutableList<Comment> = mutableListOf(),
+    val comments: MutableList<Comment> = mutableListOf(),
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    val user: User,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null
+    val id: Long? = null
 }
 
 fun Todo.toResponse(): TodoResponse {
     return TodoResponse(id!!, title, content, writer, createdAt, completed, comments.map { it.toResponse() })
 }
-
-//fun Todo.toMultiResponse(): TodoListResponse {
-//    return TodoListResponse(id!!, title, content, writer, createAt, completed)
-//}

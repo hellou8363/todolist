@@ -3,6 +3,7 @@ package org.zerock.todolist.domain.comment.model
 import jakarta.persistence.*
 import org.zerock.todolist.domain.comment.dto.CommentResponse
 import org.zerock.todolist.domain.todo.model.Todo
+import org.zerock.todolist.domain.user.model.User
 import java.time.LocalDateTime
 
 @Entity
@@ -23,6 +24,10 @@ class Comment(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "todo_id")
     val todo: Todo,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    var user: User,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
