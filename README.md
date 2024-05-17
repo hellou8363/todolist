@@ -65,7 +65,7 @@ Todo 관리와 댓글로 소통할 수 있는 서비스
 ![step4-erd](https://github.com/hellou8363/todolist/assets/89592727/4be336be-b224-4b8f-8b1b-f37568c9f8e6)
 
 ## API 명세서
-(작성중...)
+![step4-api](https://github.com/hellou8363/todolist/assets/89592727/dcb30c95-b06d-47bf-a6e1-d37ccfd12eec)
 
 ## 테이블 생성
 ``` 
@@ -86,6 +86,14 @@ CREATE TABLE comment (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     todo_id BIGINT,
     constraint fk_comment_todo FOREIGN KEY (todo_id) REFERENCES todo ON DELETE CASCADE
+);
+
+CREATE TABLE todo_user (
+    id BIGSERIAL PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    nickname TEXT NOT NULL,
+    password TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
