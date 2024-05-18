@@ -1,10 +1,6 @@
 package org.zerock.todolist.domain.user.service
 
-import org.springframework.security.authentication.InternalAuthenticationServiceException
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,7 +16,7 @@ import org.zerock.todolist.domain.user.repository.UserRepository
 @Service
 class UserServiceImpl(
     private val userRepository: UserRepository
-) : UserService, UserDetailsService {
+) : UserService {
     private val bCryptPasswordEncoder: BCryptPasswordEncoder = BCryptPasswordEncoder()
 
     @Transactional
@@ -41,23 +37,10 @@ class UserServiceImpl(
         ).toResponse()
     }
 
-    override fun signinUser(request: SigninRequest): UserResponse { // 시큐리티가 로그인을 처리하면서 사용이 되지 않고 있음
+    override fun signinUser(request: SigninRequest): UserResponse {
         val user = userRepository.findByEmail(request.email)
 
         return user.toResponse()
-    }
-
-    override fun loadUserByUsername(email: String): UserDetails { // 예외 처리를 했으나 적용이 되지 않고 있음
-
-        var user: User
-        try {
-            user = userRepository.findByEmail(email)
-
-        } catch (e: InternalAuthenticationServiceException) {
-            throw UsernameNotFoundException(email)
-        }
-
-        return CustomUserDetails(user)
     }
 
     override fun getUserDetails(): CustomUserDetails? {
