@@ -20,7 +20,6 @@ class TodoController(
     private val todoService: TodoService,
     private val userService: UserService
 ) {
-
     @GetMapping
     fun getTodoList(
         @RequestParam writer: String? = null,
@@ -37,7 +36,6 @@ class TodoController(
     @PostMapping
     fun createTodo(@Valid @RequestBody createTodoRequest: CreateTodoRequest): ResponseEntity<TodoResponse> {
         val userEmail = userService.getUserDetails()?.username
-        println("userEmail =====> ${userEmail}")
         return ResponseEntity.status(HttpStatus.CREATED).body(todoService.createTodo(createTodoRequest, userEmail))
     }
 
