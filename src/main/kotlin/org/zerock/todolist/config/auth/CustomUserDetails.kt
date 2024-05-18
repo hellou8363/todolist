@@ -15,10 +15,6 @@ class CustomUserDetails(
         return collector
     }
 
-    fun getUserId(): Long? {
-        return user.id
-    }
-
     override fun getPassword(): String {
         return user.password
     }
