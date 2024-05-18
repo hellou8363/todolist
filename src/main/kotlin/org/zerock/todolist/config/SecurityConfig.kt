@@ -9,15 +9,26 @@ import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
-import org.zerock.todolist.config.auth.JsonUserNamePasswordAuthenticationFiler
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.context.DelegatingSecurityContextRepository
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository
+import org.zerock.todolist.config.auth.CustomAuthenticationFailureHandler
+import org.zerock.todolist.config.auth.CustomAuthenticationSuccessHandler
+import org.zerock.todolist.config.auth.JsonUsernamePasswordAuthenticationFilter
 
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig {
-    private lateinit var objectMapper: ObjectMapper
+class SecurityConfig(
+    private val objectMapper: ObjectMapper,
+    private val userDetailsService: UserDetailsService,
+    private val customAuthenticationSuccessHandler: CustomAuthenticationSuccessHandler,
+    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler,
+) {
     @Bean
     fun bCryptPasswordEncoder(): BCryptPasswordEncoder {
         return BCryptPasswordEncoder()
@@ -25,17 +36,19 @@ class SecurityConfig {
 
     @Bean
     fun configure(http: HttpSecurity): SecurityFilterChain {
-        http.csrf { it.disable() } // CSRF 비활성화
+        http.csrf { it.disable() }
 
         return http
-            .authorizeHttpRequests { it ->
+            .addFilterBefore(
+                jsonUserNamePasswordAuthenticationFiler(),
+                UsernamePasswordAuthenticationFilter::class.java
+            )
+            .authorizeHttpRequests {
                 it.requestMatchers(HttpMethod.GET).permitAll()
                     .requestMatchers("/signup", "/signin").permitAll()
                     .anyRequest().authenticated()
             }
-            .formLogin { it.disable() } // TODO : form-data가 아닌 JSON으로 받을 수 있도록 수정 필요
-//            .addFilterAfter(jsonUserNamePasswordAuthenticationFiler(), JsonUserNamePasswordAuthenticationFiler::class.java)
-            .formLogin { it.usernameParameter("email").loginProcessingUrl("/signin") }
+            .formLogin { it.disable() }
             .logout { it.invalidateHttpSession(true) }
             .build()
     }
@@ -43,14 +56,20 @@ class SecurityConfig {
     @Bean
     fun authenticationManager(): AuthenticationManager {
         val authProvider = DaoAuthenticationProvider()
+        authProvider.setUserDetailsService(userDetailsService)
         authProvider.setPasswordEncoder(bCryptPasswordEncoder())
         return ProviderManager(authProvider)
     }
 
-//    @Bean
-//    fun jsonUserNamePasswordAuthenticationFiler(): JsonUserNamePasswordAuthenticationFiler {
-//        val jsonUserNamePasswordAuthenticationFiler = JsonUserNamePasswordAuthenticationFiler(objectMapper)
-//        jsonUserNamePasswordAuthenticationFiler.setAuthenticationManager(authenticationManager());
-//        return jsonUserNamePasswordAuthenticationFiler;
-//    }
+    @Bean
+    fun jsonUserNamePasswordAuthenticationFiler(): JsonUsernamePasswordAuthenticationFilter {
+        val jsonUserNamePasswordAuthenticationFiler = JsonUsernamePasswordAuthenticationFilter(objectMapper)
+        jsonUserNamePasswordAuthenticationFiler.setAuthenticationManager(authenticationManager())
+        jsonUserNamePasswordAuthenticationFiler.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler)
+        jsonUserNamePasswordAuthenticationFiler.setAuthenticationFailureHandler(customAuthenticationFailureHandler)
+        jsonUserNamePasswordAuthenticationFiler.setSecurityContextRepository(DelegatingSecurityContextRepository(RequestAttributeSecurityContextRepository(
+            HttpSessionSecurityContextRepository().toString()
+        )))
+        return jsonUserNamePasswordAuthenticationFiler
+    }
 }

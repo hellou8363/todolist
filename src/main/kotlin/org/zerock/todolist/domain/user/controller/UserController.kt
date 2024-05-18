@@ -1,9 +1,7 @@
 package org.zerock.todolist.domain.user.controller
 
-import jakarta.servlet.http.HttpSession
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -23,10 +21,11 @@ class UserController(
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(createUserRequest))
     }
 
-    // swagger에서 form으로 요청됨, SecurityConfig에 form -> json으로 변경하는 법을 공부해야 함
-    @PostMapping("/signin", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
-    fun signinUser(@RequestBody signinRequest: SigninRequest): ResponseEntity<UserResponse> {
-        val user = userService.getUserDetails()
-        return ResponseEntity.status(HttpStatus.OK).body(userService.signinUser(signinRequest))
-    }
+    @PostMapping("/signin")
+    fun `swagger-ui에 보여지기 위함`(@RequestBody signinRequest: SigninRequest) {}
+
+//    fun signinUser(@RequestBody signinRequest: SigninRequest): ResponseEntity<UserResponse> {
+//        val user = userService.getUserDetails()
+//        return ResponseEntity.status(HttpStatus.OK).body(userService.signinUser(signinRequest))
+//    }
 }
