@@ -34,9 +34,12 @@ class CustomAuthenticationSuccessHandler(
 
         val DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSSSS"
 
-        objectMapper.registerModule(JavaTimeModule().addSerializer(
-            LocalDateTime::class.java, LocalDateTimeSerializer(
-            DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT))
-        )).writeValue(response.writer, userToResponse)
+        objectMapper.registerModule(
+            JavaTimeModule().addSerializer(
+                LocalDateTime::class.java, LocalDateTimeSerializer(
+                    DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)
+                )
+            )
+        ).writeValue(response.writer, userToResponse)
     }
 }
