@@ -40,7 +40,7 @@ class SecurityConfig(
 
         return http
             .addFilterBefore(
-                jsonUserNamePasswordAuthenticationFiler(),
+                jsonUsernamePasswordAuthenticationFilter(),
                 UsernamePasswordAuthenticationFilter::class.java
             )
             .authorizeHttpRequests {
@@ -62,14 +62,18 @@ class SecurityConfig(
     }
 
     @Bean
-    fun jsonUserNamePasswordAuthenticationFiler(): JsonUsernamePasswordAuthenticationFilter {
-        val jsonUserNamePasswordAuthenticationFiler = JsonUsernamePasswordAuthenticationFilter(objectMapper)
-        jsonUserNamePasswordAuthenticationFiler.setAuthenticationManager(authenticationManager())
-        jsonUserNamePasswordAuthenticationFiler.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler)
-        jsonUserNamePasswordAuthenticationFiler.setAuthenticationFailureHandler(customAuthenticationFailureHandler)
-        jsonUserNamePasswordAuthenticationFiler.setSecurityContextRepository(DelegatingSecurityContextRepository(RequestAttributeSecurityContextRepository(
-            HttpSessionSecurityContextRepository().toString()
-        )))
-        return jsonUserNamePasswordAuthenticationFiler
+    fun jsonUsernamePasswordAuthenticationFilter(): JsonUsernamePasswordAuthenticationFilter {
+        val jsonUsernamePasswordAuthenticationFilter = JsonUsernamePasswordAuthenticationFilter(objectMapper)
+        jsonUsernamePasswordAuthenticationFilter.setAuthenticationManager(authenticationManager())
+        jsonUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler)
+        jsonUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler)
+        jsonUsernamePasswordAuthenticationFilter.setSecurityContextRepository(
+            DelegatingSecurityContextRepository(
+                RequestAttributeSecurityContextRepository(
+                    HttpSessionSecurityContextRepository().toString()
+                )
+            )
+        )
+        return jsonUsernamePasswordAuthenticationFilter
     }
 }
