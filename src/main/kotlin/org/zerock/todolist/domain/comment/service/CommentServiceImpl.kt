@@ -4,9 +4,8 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.zerock.todolist.domain.comment.dto.CommentResponse
-import org.zerock.todolist.domain.comment.dto.CreateCommentRequest
+import org.zerock.todolist.domain.comment.dto.CreateAndUpdateCommentRequest
 import org.zerock.todolist.domain.comment.dto.DeleteCommentRequest
-import org.zerock.todolist.domain.comment.dto.UpdateCommentRequest
 import org.zerock.todolist.domain.comment.model.Comment
 import org.zerock.todolist.domain.comment.model.toResponse
 import org.zerock.todolist.domain.comment.repository.CommentRepository
@@ -31,7 +30,7 @@ class CommentServiceImpl(
     }
 
     @Transactional
-    override fun createComment(todoId: Long, request: CreateCommentRequest, userEmail: String?): CommentResponse {
+    override fun createComment(todoId: Long, request: CreateAndUpdateCommentRequest, userEmail: String?): CommentResponse {
         val user = userEmail?.let { userRepository.findByEmail(it) } ?: throw ModelNotFoundException("User", null)
         val todo = todoRepository.findByIdOrNull(todoId) ?: throw ModelNotFoundException("Todo", todoId)
 
@@ -47,7 +46,7 @@ class CommentServiceImpl(
     }
 
     @Transactional
-    override fun updateComment(todoId: Long, commentId: Long, request: UpdateCommentRequest, userEmail: String?): CommentResponse {
+    override fun updateComment(todoId: Long, commentId: Long, request: CreateAndUpdateCommentRequest, userEmail: String?): CommentResponse {
         val user = userEmail?.let { userRepository.findByEmail(it) } ?: throw ModelNotFoundException("User", null)
         val comment =
             commentRepository.findByTodoIdAndId(todoId, commentId) ?: throw ModelNotFoundException("Comment", commentId)

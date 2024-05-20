@@ -4,9 +4,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.zerock.todolist.domain.comment.dto.CommentResponse
-import org.zerock.todolist.domain.comment.dto.CreateCommentRequest
+import org.zerock.todolist.domain.comment.dto.CreateAndUpdateCommentRequest
 import org.zerock.todolist.domain.comment.dto.DeleteCommentRequest
-import org.zerock.todolist.domain.comment.dto.UpdateCommentRequest
 import org.zerock.todolist.domain.comment.service.CommentService
 import org.zerock.todolist.domain.user.service.UserService
 
@@ -20,22 +19,22 @@ class CommentController(
     @PostMapping("/comments")
     fun createComment(
         @PathVariable todoId: Long,
-        @RequestBody createCommentRequest: CreateCommentRequest
+        @RequestBody createAndUpdateCommentRequest: CreateAndUpdateCommentRequest
     ): ResponseEntity<CommentResponse> {
         val userEmail = userService.getUserDetails()?.username
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(commentService.createComment(todoId, createCommentRequest, userEmail))
+            .body(commentService.createComment(todoId, createAndUpdateCommentRequest, userEmail))
     }
 
     @PutMapping("/comments/{commentId}")
     fun updateComment(
         @PathVariable todoId: Long,
         @PathVariable commentId: Long,
-        @RequestBody updateCommentRequest: UpdateCommentRequest
+        @RequestBody CreateAndUpdateCommentRequest: CreateAndUpdateCommentRequest
     ): ResponseEntity<CommentResponse> {
         val userEmail = userService.getUserDetails()?.username
         return ResponseEntity.status(HttpStatus.OK)
-            .body(commentService.updateComment(todoId, commentId, updateCommentRequest, userEmail))
+            .body(commentService.updateComment(todoId, commentId, CreateAndUpdateCommentRequest, userEmail))
     }
 
     @DeleteMapping("/comments/{commentId}")
