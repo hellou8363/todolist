@@ -7,16 +7,9 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "todo_user")
 class User(
-    @Column(name = "email")
     val email: String,
-
-    @Column(name = "nickname")
     val nickname: String,
-
-    @Column(name = "password")
     val password: String,
-
-    @Column(name = "role")
     val role: String,
 
     @Column(name = "created_at")

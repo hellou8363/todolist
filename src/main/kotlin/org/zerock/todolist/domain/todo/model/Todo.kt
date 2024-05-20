@@ -10,20 +10,14 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "todo")
 class Todo(
-    @Column(name = "title")
     var title: String,
-
-    @Column(name = "content")
     var content: String,
-
-    @Column(name = "writer")
     var writer: String,
 
     @Column(name = "created_at")
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "completed")
     var completed: TodoCompleted = TodoCompleted.FALSE,
 
     @OneToMany(mappedBy = "todo", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)

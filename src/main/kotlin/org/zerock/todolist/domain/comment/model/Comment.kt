@@ -9,13 +9,8 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "comment")
 class Comment(
-    @Column(name = "content")
     var content: String,
-
-    @Column(name = "writer")
     var writer: String,
-
-    @Column(name = "password")
     var password: String,
 
     @Column(name = "created_at")
