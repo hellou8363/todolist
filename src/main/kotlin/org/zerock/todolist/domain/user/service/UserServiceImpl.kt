@@ -15,9 +15,9 @@ import org.zerock.todolist.domain.user.repository.UserRepository
 
 @Service
 class UserServiceImpl(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) : UserService {
-    private val bCryptPasswordEncoder: BCryptPasswordEncoder = BCryptPasswordEncoder()
 
     @Transactional
     override fun createUser(request: CreateUserRequest): UserResponse {
