@@ -1,6 +1,6 @@
 package org.zerock.todolist.config.auth
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class CustomAuthenticationFailureHandler : AuthenticationFailureHandler {
-    private val objectMapper = ObjectMapper()
 
     override fun onAuthenticationFailure(
         request: HttpServletRequest,
@@ -40,6 +39,6 @@ class CustomAuthenticationFailureHandler : AuthenticationFailureHandler {
             }
         }
 
-        objectMapper.writeValue(response.writer, errMsg)
+        jacksonObjectMapper().writeValue(response.writer, errMsg)
     }
 }
