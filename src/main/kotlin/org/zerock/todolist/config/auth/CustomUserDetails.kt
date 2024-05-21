@@ -38,4 +38,13 @@ class CustomUserDetails(
     override fun isEnabled(): Boolean {
         return true
     }
+
+    fun getClaims(): Map<String, Any> {
+        val dataMap = mutableMapOf<String, Any>(
+            "email" to user.email,
+            "role" to user.role,
+        )
+
+        return dataMap
+    }
 }
