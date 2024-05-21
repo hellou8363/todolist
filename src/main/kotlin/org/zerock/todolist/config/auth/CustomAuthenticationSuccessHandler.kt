@@ -1,8 +1,6 @@
 package org.zerock.todolist.config.auth
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
@@ -10,36 +8,31 @@ import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.stereotype.Component
-import org.zerock.todolist.domain.user.model.toResponse
-import org.zerock.todolist.domain.user.repository.UserRepository
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import org.zerock.todolist.util.JwtUtil
 
 @Component
 class CustomAuthenticationSuccessHandler(
-    private val userRepository: UserRepository,
+    private val jwtUtil: JwtUtil
 ) : AuthenticationSuccessHandler {
-    private val objectMapper = ObjectMapper()
 
     override fun onAuthenticationSuccess(
+
         request: HttpServletRequest,
         response: HttpServletResponse,
         authentication: Authentication
     ) {
         val user: CustomUserDetails = authentication.principal as CustomUserDetails
-        val userToResponse = userRepository.findByEmail(user.username).toResponse()
+        val claims: MutableMap<String, Any> = user.getClaims().toMutableMap()
+
+        val accessToken = jwtUtil.generateToken(claims, 10) // 10분
+        val refreshToken = jwtUtil.generateToken(claims, 60 * 24) // 24시간
+
+        claims["accessToken"] = accessToken
+        claims["refreshToken"] = refreshToken
 
         response.status = HttpStatus.OK.value()
         response.contentType = MediaType.APPLICATION_JSON_VALUE
 
-        val DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSSSS"
-
-        objectMapper.registerModule(
-            JavaTimeModule().addSerializer(
-                LocalDateTime::class.java, LocalDateTimeSerializer(
-                    DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)
-                )
-            )
-        ).writeValue(response.writer, userToResponse)
+        jacksonObjectMapper().writeValue(response.writer, claims)
     }
 }
