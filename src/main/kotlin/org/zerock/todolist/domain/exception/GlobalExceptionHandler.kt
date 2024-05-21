@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.zerock.todolist.domain.exception.dto.ErrorResponse
+import org.zerock.todolist.util.CustomJwtException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -39,5 +40,10 @@ class GlobalExceptionHandler {
     @ExceptionHandler(CustomAccessDeniedException::class)
     fun handleCustomAccessDeniedException(e: CustomAccessDeniedException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse(e.message))
+    }
+
+    @ExceptionHandler(CustomJwtException::class)
+    fun handleCustomJwtException(e: CustomJwtException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse(e.message))
     }
 }
