@@ -1,4 +1,4 @@
-package org.zerock.todolist.config.auth
+package org.zerock.todolist.config.auth.filter
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.servlet.FilterChain
@@ -9,8 +9,9 @@ import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
+import org.zerock.todolist.config.auth.CustomUserDetails
 import org.zerock.todolist.domain.user.model.User
-import org.zerock.todolist.util.JwtUtil
+import org.zerock.todolist.config.auth.util.JwtUtil
 
 class JwtCheckFilter(
     private val jwtUtil: JwtUtil

@@ -1,4 +1,4 @@
-package org.zerock.todolist.util
+package org.zerock.todolist.config.auth.util
 
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys

@@ -1,4 +1,4 @@
-package org.zerock.todolist.config.auth
+package org.zerock.todolist.config.auth.handler
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.servlet.http.HttpServletRequest

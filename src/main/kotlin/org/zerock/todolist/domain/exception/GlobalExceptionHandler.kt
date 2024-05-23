@@ -8,7 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.zerock.todolist.domain.exception.dto.ErrorResponse
-import org.zerock.todolist.util.CustomJwtException
+import org.zerock.todolist.config.auth.util.CustomJwtException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {

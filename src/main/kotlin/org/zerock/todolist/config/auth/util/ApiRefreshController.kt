@@ -1,4 +1,4 @@
-package org.zerock.todolist.util
+package org.zerock.todolist.config.auth.util
 
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

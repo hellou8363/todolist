@@ -1,4 +1,4 @@
-package org.zerock.todolist.config.auth
+package org.zerock.todolist.config.auth.handler
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.servlet.http.HttpServletRequest
@@ -8,7 +8,8 @@ import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.stereotype.Component
-import org.zerock.todolist.util.JwtUtil
+import org.zerock.todolist.config.auth.CustomUserDetails
+import org.zerock.todolist.config.auth.util.JwtUtil
 
 @Component
 class CustomAuthenticationSuccessHandler(
@@ -16,7 +17,6 @@ class CustomAuthenticationSuccessHandler(
 ) : AuthenticationSuccessHandler {
 
     override fun onAuthenticationSuccess(
-
         request: HttpServletRequest,
         response: HttpServletResponse,
         authentication: Authentication
