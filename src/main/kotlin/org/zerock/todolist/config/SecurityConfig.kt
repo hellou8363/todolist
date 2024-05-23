@@ -1,12 +1,10 @@
 package org.zerock.todolist.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -14,24 +12,20 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.security.web.context.DelegatingSecurityContextRepository
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository
-import org.springframework.security.web.context.RequestAttributeSecurityContextRepository
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import org.zerock.todolist.config.auth.CustomAuthenticationFailureHandler
-import org.zerock.todolist.config.auth.CustomAuthenticationSuccessHandler
-import org.zerock.todolist.config.auth.JsonUsernamePasswordAuthenticationFilter
-import org.zerock.todolist.config.auth.JwtCheckFilter
+import org.zerock.todolist.config.auth.filter.JsonUsernamePasswordAuthenticationFilter
+import org.zerock.todolist.config.auth.filter.JwtCheckFilter
+import org.zerock.todolist.config.auth.handler.CustomAuthenticationFailureHandler
+import org.zerock.todolist.config.auth.handler.CustomAuthenticationSuccessHandler
+import org.zerock.todolist.config.auth.util.JwtUtil
 import org.zerock.todolist.domain.exception.CustomAccessDeniedException
-import org.zerock.todolist.util.JwtUtil
 
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val objectMapper: ObjectMapper,
     private val userDetailsService: UserDetailsService,
     private val customAuthenticationSuccessHandler: CustomAuthenticationSuccessHandler,
     private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler
@@ -53,7 +47,7 @@ class SecurityConfig(
             )
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) } // 서버 내부에서 세션 생성 X
             .formLogin { it.disable() } // 기본 로그인 폼 비활성화(기본 경로 "/login")
-            .exceptionHandling { it.accessDeniedHandler(CustomAccessDeniedException("ERROR_ACCESSDENIED")) }
+            .exceptionHandling { it.accessDeniedHandler(CustomAccessDeniedException("ERROR_ACCESSIONED")) }
             .build()
     }
 
@@ -74,25 +68,19 @@ class SecurityConfig(
 
     @Bean
     fun authenticationManager(): AuthenticationManager {
-        val authProvider = DaoAuthenticationProvider()
-        authProvider.setUserDetailsService(userDetailsService)
-        authProvider.setPasswordEncoder(bCryptPasswordEncoder())
+        val authProvider = DaoAuthenticationProvider() // 사용자 이름과 비밀번호를 기반으로 인증을 수행하는 구성 요소
+        authProvider.setUserDetailsService(userDetailsService) // 사용자의 세부 정보를 불러오기 위한 설정
+        authProvider.setPasswordEncoder(bCryptPasswordEncoder()) // 비밀번호 검증을 위한 설정
         return ProviderManager(authProvider)
     }
 
     @Bean
     fun jsonUsernamePasswordAuthenticationFilter(): JsonUsernamePasswordAuthenticationFilter {
-        val jsonUsernamePasswordAuthenticationFilter = JsonUsernamePasswordAuthenticationFilter(objectMapper)
+        val jsonUsernamePasswordAuthenticationFilter = JsonUsernamePasswordAuthenticationFilter()
         jsonUsernamePasswordAuthenticationFilter.setAuthenticationManager(authenticationManager())
         jsonUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler)
         jsonUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler)
-        jsonUsernamePasswordAuthenticationFilter.setSecurityContextRepository(
-            DelegatingSecurityContextRepository(
-                RequestAttributeSecurityContextRepository(
-                    HttpSessionSecurityContextRepository().toString()
-                )
-            )
-        )
+
         return jsonUsernamePasswordAuthenticationFilter
     }
 }
