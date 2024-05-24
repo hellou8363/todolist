@@ -19,9 +19,10 @@ class JwtCheckFilter(
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean { // 필터로 체크하지 않을 경로 or 메서드 지정
         val path = request.requestURI
-        val urls = listOf("/swagger-ui", "/v3/api-docs", "/signin", "/signup", "/api/user/refresh")
+        val urls = listOf("/signin", "/signup", "/api/user/refresh")
 
-        return urls.any { path.startsWith(it) } // path의 접두사와 일치하는 URI가 있으면 필터 체크 X
+        // // GET 요청은 필터링 X || path의 접두사와 일치하는 URI가 있으면 필터 체크 X
+        return "GET".equals(request.method) || urls.any { path.startsWith(it) }
     }
 
     override fun doFilterInternal(
