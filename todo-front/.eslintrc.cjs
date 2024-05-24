@@ -17,7 +17,5 @@ module.exports = {
       'warn',
       { allowConstantExport: true },
     ],
-    "no-unused-vars" : "off", // 코드상에 실제로 사용하지 않는 변수가 있을 때 오류로 알려주는 옵션
-    "react/prop-types" : "off", // 
   },
 }
