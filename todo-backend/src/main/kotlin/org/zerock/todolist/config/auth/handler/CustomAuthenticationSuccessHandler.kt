@@ -24,7 +24,7 @@ class CustomAuthenticationSuccessHandler(
         val user: CustomUserDetails = authentication.principal as CustomUserDetails
         val claims: MutableMap<String, Any> = user.getClaims().toMutableMap()
 
-        val accessToken = jwtUtil.generateToken(claims, 10) // 10분
+        val accessToken = jwtUtil.generateToken(claims, 60) // 60분
         val refreshToken = jwtUtil.generateToken(claims, 60 * 24) // 24시간
 
         claims["accessToken"] = accessToken
