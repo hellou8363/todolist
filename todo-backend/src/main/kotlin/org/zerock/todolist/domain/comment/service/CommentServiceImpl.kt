@@ -30,15 +30,17 @@ class CommentServiceImpl(
     }
 
     @Transactional
-    override fun createComment(todoId: Long, request: CreateAndUpdateCommentRequest, userEmail: String?): CommentResponse {
+    override fun createComment(
+        todoId: Long,
+        request: CreateAndUpdateCommentRequest,
+        userEmail: String?
+    ): CommentResponse {
         val user = userEmail?.let { userRepository.findByEmail(it) } ?: throw ModelNotFoundException("User", null)
         val todo = todoRepository.findByIdOrNull(todoId) ?: throw ModelNotFoundException("Todo", todoId)
 
         return commentRepository.save(
-            Comment(
-                content = request.content,
-                writer = request.writer,
-                password = request.password,
+            Comment.from(
+                request,
                 todo = todo,
                 user = user
             )
@@ -46,7 +48,12 @@ class CommentServiceImpl(
     }
 
     @Transactional
-    override fun updateComment(todoId: Long, commentId: Long, request: CreateAndUpdateCommentRequest, userEmail: String?): CommentResponse {
+    override fun updateComment(
+        todoId: Long,
+        commentId: Long,
+        request: CreateAndUpdateCommentRequest,
+        userEmail: String?
+    ): CommentResponse {
         val user = userEmail?.let { userRepository.findByEmail(it) } ?: throw ModelNotFoundException("User", null)
         val comment =
             commentRepository.findByTodoIdAndId(todoId, commentId) ?: throw ModelNotFoundException("Comment", commentId)
