@@ -39,11 +39,9 @@ class TodoServiceImpl(
     override fun createTodo(request: CreateTodoRequest, userEmail: String?): TodoResponse {
         val user = userEmail?.let { userRepository.findByEmail(it) } ?: throw ModelNotFoundException("User", null)
         return todoRepository.save(
-            Todo(
-                title = request.title,
-                content = request.content,
-                writer = request.writer,
-                user = user
+            Todo.from(
+                request,
+                user
             )
         ).toResponse()
     }
