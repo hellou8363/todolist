@@ -50,19 +50,24 @@ class JwtCheckFilter(
 
             val authenticationToken = UsernamePasswordAuthenticationToken(user, user.password, user.authorities)
 
-//            SecurityContextHolder.getContext().authentication = authenticationToken
+            SecurityContextHolder.getContext().authentication = authenticationToken
             val context = SecurityContextHolder.getContext()
             context.authentication = authenticationToken
-            println("********************** context : $context")
 
             filterChain.doFilter(request, response)
         } catch (e: Exception) {
-            logger.error("ERROR_ACCESS_TOKEN")
+            logger.error(e.message)
+
+            var errorMessage = e.message
+
+            if (e.message == null) { // 헤더에 토큰을 넣지 않은 경우: NullPointException
+                errorMessage = "No token"
+            }
 
             response.status = HttpStatus.BAD_REQUEST.value()
             response.contentType = MediaType.APPLICATION_JSON_VALUE
 
-            jacksonObjectMapper().writeValue(response.writer, "ERROR_ACCESS_TOKEN")
+            jacksonObjectMapper().writeValue(response.writer, errorMessage)
         }
     }
 }
