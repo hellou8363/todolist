@@ -11,7 +11,6 @@ class CustomUserDetails(
 
     override fun getAuthorities(): Collection<GrantedAuthority> { // 사용자에게 부여된 권한을 반환
         val collector: MutableCollection<GrantedAuthority> = ArrayList()
-        collector.add(GrantedAuthority { user.role })
 
         return collector
     }
@@ -42,8 +41,7 @@ class CustomUserDetails(
 
     fun getClaims(): Map<String, Any> {
         val dataMap = mutableMapOf<String, Any>(
-            "email" to user.email,
-            "role" to user.role,
+            "email" to user.email
         )
 
         return dataMap

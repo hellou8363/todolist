@@ -15,8 +15,7 @@ import org.zerock.todolist.domain.user.repository.UserRepository
 
 @Service
 class UserServiceImpl(
-    private val userRepository: UserRepository,
-    private val bCryptPasswordEncoder: BCryptPasswordEncoder
+    private val userRepository: UserRepository
 ) : UserService {
 
     @Transactional
@@ -28,12 +27,7 @@ class UserServiceImpl(
         }
 
         return userRepository.save(
-            User(
-                email = request.email,
-                nickname = request.nickname,
-                role = "USER",
-                password = bCryptPasswordEncoder.encode(request.password),
-            )
+            User.from(request)
         ).toResponse()
     }
 

@@ -12,6 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 import org.zerock.todolist.config.auth.CustomUserDetails
 import org.zerock.todolist.domain.user.model.User
 import org.zerock.todolist.config.auth.util.JwtUtil
+import org.zerock.todolist.domain.user.dto.CreateUserRequest
 
 class JwtCheckFilter(
     private val jwtUtil: JwtUtil
@@ -38,17 +39,21 @@ class JwtCheckFilter(
             val claims = jwtUtil.validateToken(accessToken)
 
             val user = CustomUserDetails(
-                User(
-                    email = claims["email"].toString(),
-                    nickname = claims["nickname"].toString(),
-                    password = claims["password"].toString(),
-                    role = claims["role"].toString()
+                User.from(
+                    CreateUserRequest(
+                        email = claims["email"].toString(),
+                        nickname = claims["nickname"].toString(),
+                        password = claims["password"].toString()
+                    )
                 )
             )
 
             val authenticationToken = UsernamePasswordAuthenticationToken(user, user.password, user.authorities)
 
-            SecurityContextHolder.getContext().authentication = authenticationToken
+//            SecurityContextHolder.getContext().authentication = authenticationToken
+            val context = SecurityContextHolder.getContext()
+            context.authentication = authenticationToken
+            println("********************** context : $context")
 
             filterChain.doFilter(request, response)
         } catch (e: Exception) {
