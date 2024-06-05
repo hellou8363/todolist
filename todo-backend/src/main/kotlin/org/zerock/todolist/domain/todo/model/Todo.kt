@@ -1,12 +1,12 @@
 package org.zerock.todolist.domain.todo.model
 
 import jakarta.persistence.*
+import org.zerock.todolist.domain.BaseEntity
 import org.zerock.todolist.domain.comment.model.Comment
 import org.zerock.todolist.domain.comment.model.toResponse
 import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
 import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.user.model.User
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "todo")
@@ -18,13 +18,10 @@ class Todo private constructor(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     var user: User
-) {
+) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
-
-    @Column(name = "created_at")
-    val createdAt: LocalDateTime = LocalDateTime.now()
 
     @Enumerated(EnumType.STRING)
     var completed: TodoCompleted = TodoCompleted.FALSE

@@ -1,11 +1,11 @@
 package org.zerock.todolist.domain.comment.model
 
 import jakarta.persistence.*
+import org.zerock.todolist.domain.BaseEntity
 import org.zerock.todolist.domain.comment.dto.CommentResponse
 import org.zerock.todolist.domain.comment.dto.CreateAndUpdateCommentRequest
 import org.zerock.todolist.domain.todo.model.Todo
 import org.zerock.todolist.domain.user.model.User
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "comment")
@@ -21,13 +21,10 @@ class Comment private constructor(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     var user: User
-) {
+) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
-
-    @Column(name = "created_at")
-    var createdAt: LocalDateTime = LocalDateTime.now()
 
     companion object {
         fun from(createAndUpdateCommentRequest: CreateAndUpdateCommentRequest, todo: Todo, user: User): Comment {
