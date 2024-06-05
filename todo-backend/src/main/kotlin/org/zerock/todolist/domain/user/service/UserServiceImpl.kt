@@ -1,7 +1,6 @@
 package org.zerock.todolist.domain.user.service
 
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.zerock.todolist.config.auth.CustomUserDetails
