@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.zerock.todolist.domain.todo.model.Todo
 
-interface TodoRepository : JpaRepository<Todo, Long> {
+interface TodoRepository : JpaRepository<Todo, Long>, CustomTodoRepository {
 
     fun findByWriter(writer: String, pageable: Pageable) : Page<Todo>
 }

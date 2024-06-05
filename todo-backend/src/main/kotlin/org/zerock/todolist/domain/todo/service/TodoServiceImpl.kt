@@ -25,7 +25,7 @@ class TodoServiceImpl(
 
     override fun getAllTodoList(pageable: Pageable, writer: String?): Page<TodoListResponse> {
         return if (writer != null) {
-            todoRepository.findByWriter(writer, pageable).map { it.toListResponse() }
+            todoRepository.searchTodoListByWriter(writer, pageable).map { it.toListResponse() }
         } else {
             todoRepository.findAll(pageable).map { it.toListResponse() }
         }
