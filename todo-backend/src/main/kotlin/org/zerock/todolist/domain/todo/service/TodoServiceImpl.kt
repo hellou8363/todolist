@@ -8,12 +8,13 @@ import org.springframework.transaction.annotation.Transactional
 import org.zerock.todolist.domain.exception.CustomAccessDeniedException
 import org.zerock.todolist.domain.exception.ModelNotFoundException
 import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
+import org.zerock.todolist.domain.todo.dto.TodoListResponse
 import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.todo.dto.UpdateTodoRequest
 import org.zerock.todolist.domain.todo.model.Todo
+import org.zerock.todolist.domain.todo.model.toListResponse
 import org.zerock.todolist.domain.todo.model.toResponse
 import org.zerock.todolist.domain.todo.repository.TodoRepository
-import org.zerock.todolist.domain.user.model.User
 import org.zerock.todolist.domain.user.repository.UserRepository
 
 @Service
@@ -22,11 +23,11 @@ class TodoServiceImpl(
     private val userRepository: UserRepository
 ) : TodoService {
 
-    override fun getAllTodoList(pageable: Pageable, writer: String?): Page<TodoResponse> {
-        if (writer != null) {
-            return todoRepository.findByWriter(writer, pageable).map { it.toResponse() }
+    override fun getAllTodoList(pageable: Pageable, writer: String?): Page<TodoListResponse> {
+        return if (writer != null) {
+            todoRepository.findByWriter(writer, pageable).map { it.toListResponse() }
         } else {
-            return todoRepository.findAll(pageable).map { it.toResponse() }
+            todoRepository.findAll(pageable).map { it.toListResponse() }
         }
     }
 

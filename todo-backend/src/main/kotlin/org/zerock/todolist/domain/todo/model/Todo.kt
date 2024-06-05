@@ -5,6 +5,7 @@ import org.zerock.todolist.domain.BaseEntity
 import org.zerock.todolist.domain.comment.model.Comment
 import org.zerock.todolist.domain.comment.model.toResponse
 import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
+import org.zerock.todolist.domain.todo.dto.TodoListResponse
 import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.user.model.User
 
@@ -43,4 +44,8 @@ class Todo private constructor(
 
 fun Todo.toResponse(): TodoResponse {
     return TodoResponse(id!!, title, content, writer, createdAt, completed, comments.map { it.toResponse() })
+}
+
+fun Todo.toListResponse(): TodoListResponse {
+    return TodoListResponse(id!!, title, content, writer, createdAt, completed)
 }
