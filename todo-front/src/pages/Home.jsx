@@ -2,22 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import Card from "../components/Card";
 import "./Home.css";
+import { useNavigate } from "react-router-dom";
+import { BASE_URI } from "../api/apiKey";
 
 const Home = () => {
   const [todos, setTodos] = useState([]);
   const [page, setPage] = useState(0);
   const totalCount = useRef(1);
   const [ref, inView] = useInView();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (inView && todos.length < totalCount.current) {
-      console.log("todos.length: ", todos.length, ", totalCount: ", totalCount);
       todoFetch();
     }
   }, [inView]);
 
   const todoFetch = () => {
-    fetch(`http://localhost:8080/todos?page=${page}&size=10`)
+    fetch(`${BASE_URI}/todos?page=${page}&size=10`)
       .then((res) => res.json())
       .then((data) => {
         setTodos([...todos, ...data.content]);
@@ -35,6 +37,9 @@ const Home = () => {
         {todos.map((value) => {
           return (
             <Card
+              onClick={() => {
+                navigate(`/details/${value.id}`);
+              }}
               key={value.id}
               title={value.title}
               writer={value.writer}
