@@ -3,6 +3,7 @@ package org.zerock.todolist.domain.todo.controller
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.zerock.todolist.domain.exception.ModelNotFoundException
 import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.todo.model.TodoCompleted
 import org.zerock.todolist.domain.todo.service.TodoService
@@ -40,7 +42,7 @@ class TodoControllerTests @Autowired constructor(
     describe("GET /todos/{id}") {
         context("존재하는 ID를 요청할 때") {
             it("200 status code를 응답한다.") {
-                val todoId = 1L
+                val todoId = 2L
 
 
                 every { todoService.getTodoById(any()) } returns TodoResponse(
@@ -74,6 +76,31 @@ class TodoControllerTests @Autowired constructor(
                 )
 
                 responseDto.id shouldBe todoId
+            }
+        }
+
+        context("존재하지 않는 ID를 요청할 때") {
+            val todoId = 100L
+
+            it("ModelNotFoundExceptionr가 발생") {
+                mockMvc.perform(
+                    get("/todos/$todoId")
+                ).andReturn().resolvedException shouldBe ModelNotFoundException(modelName = "Todo", id = todoId)
+            }
+
+            it("400 status code를 응답한다.") {
+                val result = mockMvc.perform(
+                    get("/todos/$todoId")
+                ).andReturn()
+
+                result.response.status shouldBe 400
+                println("********** response status: ${result.response.status}")
+
+                val content = jacksonObjectMapper().readValue<Map<String, String>>(result.response.contentAsString)
+                content["message"] shouldBe "Model Todo not found with given id: 100"
+
+                println("********** content: ${content["message"]}")
+                println("********** response errorMessage: ${result.response.errorMessage}")
             }
         }
     }

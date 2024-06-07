@@ -62,10 +62,10 @@ class JsonUsernamePasswordAuthenticationFilter : AbstractAuthenticationProcessin
     }
 
     companion object {
-        private const val DEFAULT_LOGIN_REQUEST_URL = "/signin"
+        private const val DEFAULT_LOGIN_REQUEST_URL = "/users/signin"
         private const val HTTP_METHOD = "POST"
         private const val CONTENT_TYPE = "application/json"
         private val DEFAULT_LOGIN_PATH_REQUEST_MATCHER =
-            AntPathRequestMatcher(DEFAULT_LOGIN_REQUEST_URL, HTTP_METHOD) // POST + "/signin"
+            AntPathRequestMatcher(DEFAULT_LOGIN_REQUEST_URL, HTTP_METHOD) // POST + "/users/signin"
     }
 }

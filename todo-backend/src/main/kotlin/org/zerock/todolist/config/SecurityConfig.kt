@@ -36,7 +36,7 @@ class SecurityConfig(
     @Bean
     fun configure(http: HttpSecurity, jwtUtil: JwtUtil): SecurityFilterChain {
         return http
-            .csrf { it.disable() } // API 서버에서 사용 X
+            .csrf { it.disable() } // API 서버로 사용하므로 비활성화
             .cors { it.configurationSource(corsConfigurationSource()) } // cors 설정
             .addFilterBefore( // 우선 실행되어야 함
                 JwtCheckFilter(jwtUtil), UsernamePasswordAuthenticationFilter::class.java
@@ -47,7 +47,7 @@ class SecurityConfig(
             )
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) } // 서버 내부에서 세션 생성 X
             .formLogin { it.disable() } // 기본 로그인 폼 비활성화(기본 경로 "/login")
-            .exceptionHandling { it.accessDeniedHandler(CustomAccessDeniedException("ERROR_ACCESSIONED")) }
+            .exceptionHandling { it.accessDeniedHandler(CustomAccessDeniedException("ERROR_ACCESSIONED")) } // 접근 거부 오류가 발생 시
             .build()
     }
 
@@ -55,11 +55,11 @@ class SecurityConfig(
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
 
-        configuration.setAllowedOriginPatterns(listOf("*")) // 모든 출처에서 요청 허용
-        configuration.allowedMethods = listOf("HEAD", "GET", "POST", "PUT", "DELETE") // 허용 HTTP 메서드 지정
-        configuration.allowedHeaders = listOf("Authorization", "Cache-Control", "Content-Type") // 허용 HTTP 헤더 지정
+        configuration.setAllowedOriginPatterns(listOf("https://localhost:5173"))
+        configuration.allowedMethods = listOf("HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용 HTTP 메서드 지정
+        configuration.allowedHeaders = listOf("*") // 허용 HTTP 헤더 지정
         configuration.allowCredentials = true // 자격 증명(쿠키, HTTP 인증, Client SSL 인증 등)
-
+        configuration.addExposedHeader("Set-Cookie")
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", configuration) // 모든 URL 패턴에 대해 설정한 configuration 적용
 
