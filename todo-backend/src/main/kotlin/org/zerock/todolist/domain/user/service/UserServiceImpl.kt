@@ -26,8 +26,7 @@ import java.util.*
 @Service
 class UserServiceImpl(
     private val userRepository: UserRepository,
-    private val jwtUtil: JwtUtil,
-    private val response: HttpServletResponse
+    private val jwtUtil: JwtUtil
 ) : UserService {
     private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -54,26 +53,19 @@ class UserServiceImpl(
         val accessToken = jwtUtil.generateToken(clams, 60)
         val refreshToken = jwtUtil.generateToken(clams, 60 * 24)
 
-        val accessTokenCookie = Cookie("TODOLIST_ACCESSTOKEN", accessToken)
-        accessTokenCookie.path = "/" // 모든 경로에서
-        accessTokenCookie.maxAge = 60 * 60 * 24 // 유효기간(초)
-        accessTokenCookie.domain = "127.0.0.1"
-
-
         val refreshTokenCookie = Cookie("TODOLIST_REFRESHTOKEN", refreshToken)
-        refreshTokenCookie.path = "/"
-        refreshTokenCookie.maxAge = 60 * 60 * 24 * 30
-        refreshTokenCookie.secure = true
-        refreshTokenCookie.isHttpOnly = true // 브라우저에서 쿠키 접근 X
-        refreshTokenCookie.domain = "127.0.0.1"
+        refreshTokenCookie.path = "/" // 모든 경로에서, 하위 경로를 지정할 경우 해당 경로의 하위 경로에서만 접근 가능
+        refreshTokenCookie.maxAge = 60 * 60 * 24 * 30 // 유효기간(초)
+        refreshTokenCookie.secure = true // 보안 채널(HTTPS)을 통해 전송되는 경우 쿠키 전송(암호화 되지 않은 요청에 쿠키 전달 X)
+        refreshTokenCookie.isHttpOnly = true // 브라우저에서 쿠키 접근 X(document.cookie X), HTTP 통신으로만 접근
 
         response.status = HttpStatus.OK.value()
         response.contentType = MediaType.APPLICATION_JSON_VALUE
-        response.setHeader("SameSite", "none")
-        response.addCookie(accessTokenCookie)
-        response.addCookie(refreshTokenCookie)
 
-        jacksonObjectMapper().writeValue(response.writer, accessToken)
+        response.addCookie(refreshTokenCookie) // 응답 헤더에 Cookie를 포함
+
+        // accessToken은 Client LocalStorage에 저장하기 위해 응답 본문으로 보냄
+        jacksonObjectMapper().writeValue(response.writer, mapOf("accessToken" to accessToken))
     }
 
     override fun getUserDetails(): CustomUserDetails? {
