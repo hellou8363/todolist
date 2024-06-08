@@ -1,12 +1,7 @@
 package org.zerock.todolist.domain.user.service
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletResponse
-import org.slf4j.LoggerFactory
 import org.springframework.dao.EmptyResultDataAccessException
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -28,8 +23,6 @@ class UserServiceImpl(
     private val userRepository: UserRepository,
     private val jwtUtil: JwtUtil
 ) : UserService {
-    private val log = LoggerFactory.getLogger(this::class.java)
-
     @Transactional
     override fun createUser(request: CreateUserRequest, joinType: String): UserResponse { // 일반 회원가입
         val isExistEmail = userRepository.existsByEmail(request.email)
@@ -45,27 +38,10 @@ class UserServiceImpl(
 
     override fun signinUser(request: SigninRequest, response: HttpServletResponse) { // 로그인 처리(token 발급)
         val user = userRepository.findByEmail(request.email)
-
         val userDetails = CustomUserDetails(user)
+        val claims: MutableMap<String, Any> = userDetails.getClaims().toMutableMap()
 
-        val clams: MutableMap<String, Any> = userDetails.getClaims().toMutableMap()
-
-        val accessToken = jwtUtil.generateToken(clams, 60)
-        val refreshToken = jwtUtil.generateToken(clams, 60 * 24)
-
-        val refreshTokenCookie = Cookie("TODOLIST_REFRESHTOKEN", refreshToken)
-        refreshTokenCookie.path = "/" // 모든 경로에서, 하위 경로를 지정할 경우 해당 경로의 하위 경로에서만 접근 가능
-        refreshTokenCookie.maxAge = 60 * 60 * 24 * 30 // 유효기간(초)
-        refreshTokenCookie.secure = true // 보안 채널(HTTPS)을 통해 전송되는 경우 쿠키 전송(암호화 되지 않은 요청에 쿠키 전달 X)
-        refreshTokenCookie.isHttpOnly = true // 브라우저에서 쿠키 접근 X(document.cookie X), HTTP 통신으로만 접근
-
-        response.status = HttpStatus.OK.value()
-        response.contentType = MediaType.APPLICATION_JSON_VALUE
-
-        response.addCookie(refreshTokenCookie) // 응답 헤더에 Cookie를 포함
-
-        // accessToken은 Client LocalStorage에 저장하기 위해 응답 본문으로 보냄
-        jacksonObjectMapper().writeValue(response.writer, mapOf("accessToken" to accessToken))
+        jwtUtil.generateTokenToCookie(claims, response)
     }
 
     override fun getUserDetails(): CustomUserDetails? {
@@ -119,7 +95,7 @@ class UserServiceImpl(
         try {
             val userInfo = userRepository.findByEmail(kakaoUserInfo["email"] as String)
 
-            // 이미 카카오 소셜로 가입된 회원이면 token 발급
+            // 이미 카카오 소셜로 가입된 회원이면 로그인 처리
             if (userInfo.joinType.contains("KAKAO")) {
                 return signinUser(
                     SigninRequest(
@@ -130,7 +106,7 @@ class UserServiceImpl(
                 )
             }
 
-            // 일반회원으로 가입된 적이 있는 경우 가입종류에 KAKAO 추가 후 token 발급
+            // 일반회원으로 가입된 적이 있는 경우 가입종류에 KAKAO 추가 후 로그인 처리
             userInfo.joinType = "${userInfo.joinType}, KAKAO"
 
             return signinUser(
