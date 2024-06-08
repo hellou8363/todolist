@@ -96,6 +96,39 @@ CREATE TABLE todo_user (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
+## 패키지 구조
+```
+org.zerock.todolist
+└── config
+    └── auth
+      └── filter
+      └── handler
+      └── util
+└── domain
+    ├── comment
+    |   ├── controller
+    |   ├── dto
+    |   ├── model
+    |   ├── repository
+    |   └── service
+    ├── exception
+    |   └── dto
+    ├── todo
+    |   ├── controller
+    |   ├── dto
+    |   ├── model
+    |   ├── repository
+    |   └── service
+    ├── user
+    |   ├── controller
+    |   ├── dto
+    |   ├── model
+    |   ├── repository
+    |   └── service
+└── infra
+    ├── querydsl
+    └── swagger
+```
 
 ## 결과 화면
 (준비중...)
