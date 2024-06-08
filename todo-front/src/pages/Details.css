@@ -17,3 +17,11 @@
 .details-card .info-wrap {
   
 }
+.details-card .content {
+  height: 100%;
+}
+.details-card .bottom-menu {
+  display: flex;
+  gap: 10px;
+  justify-content: end;
+}

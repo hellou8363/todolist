@@ -38,7 +38,15 @@ const Home = () => {
           return (
             <Card
               onClick={() => {
-                navigate(`/details/${value.id}`);
+                navigate(`/todos/${value.id}`, {
+                  state: {
+                    title: value.title,
+                    content: value.content,
+                    userId: value.userId,
+                    writer: value.writer,
+                    createdAt: value.createdAt
+                  }
+                });
               }}
               key={value.id}
               title={value.title}
