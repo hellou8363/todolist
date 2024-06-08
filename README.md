@@ -131,4 +131,6 @@ org.zerock.todolist
 ```
 
 ## 결과 화면
-(준비중...)
+### 회원가입 및 로그인 화면
+![todolist_회원가입및로그인화면](https://github.com/hellou8363/todolist/assets/89592727/7c01d0a5-93f4-4101-a943-1419019fdea3)
+
