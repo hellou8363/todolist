@@ -47,5 +47,13 @@ fun Todo.toResponse(): TodoResponse {
 }
 
 fun Todo.toListResponse(): TodoListResponse {
-    return TodoListResponse(id!!, title, content, writer, createdAt, completed)
+//    return TodoListResponse(id!!, title, content, user.id!! ,writer, createdAt, completed}) // 프런트용
+    return TodoListResponse(
+        id!!,
+        title,
+        content,
+        writer,
+        createdAt,
+        completed,
+        comments.map { it.toResponse() }) // STEP 4 과제용
 }

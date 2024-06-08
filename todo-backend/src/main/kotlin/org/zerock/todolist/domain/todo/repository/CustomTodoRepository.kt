@@ -7,4 +7,6 @@ import org.zerock.todolist.domain.todo.model.Todo
 interface CustomTodoRepository {
 
     fun searchTodoListByWriter(writer: String, pageable: Pageable): Page<Todo>
+
+    fun findAllTodoList(pageable: Pageable): Page<Todo>
 }

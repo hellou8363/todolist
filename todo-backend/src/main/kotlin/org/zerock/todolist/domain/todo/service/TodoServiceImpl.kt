@@ -27,7 +27,8 @@ class TodoServiceImpl(
         return if (writer != null) {
             todoRepository.searchTodoListByWriter(writer, pageable).map { it.toListResponse() }
         } else {
-            todoRepository.findAll(pageable).map { it.toListResponse() }
+//            todoRepository.findAll(pageable).map { it.toListResponse() }
+            todoRepository.findAllTodoList(pageable).map { it.toListResponse() }
         }
     }
 

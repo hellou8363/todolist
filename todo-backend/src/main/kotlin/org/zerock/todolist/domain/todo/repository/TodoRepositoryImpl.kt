@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
+import org.zerock.todolist.domain.comment.model.QComment
 import org.zerock.todolist.domain.todo.model.QTodo
 import org.zerock.todolist.domain.todo.model.Todo
 import org.zerock.todolist.infra.querydsl.QueryDslSupport
@@ -12,6 +13,7 @@ import org.zerock.todolist.infra.querydsl.QueryDslSupport
 class TodoRepositoryImpl : QueryDslSupport(), CustomTodoRepository {
 
     private val todo = QTodo.todo
+    private val comment = QComment.comment
 
     override fun searchTodoListByWriter(
         writer: String,
@@ -24,6 +26,23 @@ class TodoRepositoryImpl : QueryDslSupport(), CustomTodoRepository {
 
         val contents = queryFactory.selectFrom(todo)
             .where(todo.writer.contains(writer))
+            .offset(pageable.offset)
+            .limit(pageable.pageSize.toLong())
+            .fetch()
+
+        return PageImpl(contents, pageable, totalCount)
+    }
+
+    override fun findAllTodoList(
+        pageable: Pageable
+    ): Page<Todo> {
+        val totalCount = queryFactory.select(todo.count())
+            .from(todo)
+            .fetchOne() ?: 0L
+
+        val contents = queryFactory.selectFrom(todo)
+            .leftJoin(todo.comments, comment)
+            .fetchJoin()
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
             .fetch()
