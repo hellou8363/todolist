@@ -13,13 +13,11 @@ import org.zerock.todolist.domain.todo.dto.TodoListResponse
 import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.todo.dto.UpdateTodoRequest
 import org.zerock.todolist.domain.todo.service.TodoService
-import org.zerock.todolist.domain.user.service.UserService
 
 @RestController
 @RequestMapping("/todos")
 class TodoController(
-    private val todoService: TodoService,
-    private val userService: UserService
+    private val todoService: TodoService
 ) {
     @GetMapping
     fun getTodoList(
@@ -36,8 +34,7 @@ class TodoController(
 
     @PostMapping
     fun createTodo(@Valid @RequestBody createTodoRequest: CreateTodoRequest): ResponseEntity<TodoResponse> {
-        val userEmail = userService.getUserDetails()?.username
-        return ResponseEntity.status(HttpStatus.CREATED).body(todoService.createTodo(createTodoRequest, userEmail))
+        return ResponseEntity.status(HttpStatus.CREATED).body(todoService.createTodo(createTodoRequest))
     }
 
     @PutMapping("/{todoId}")
@@ -45,14 +42,12 @@ class TodoController(
         @PathVariable todoId: Long,
         @RequestBody updateTodoRequest: UpdateTodoRequest
     ): ResponseEntity<TodoResponse> {
-        val userEmail = userService.getUserDetails()?.username
-        return ResponseEntity.status(HttpStatus.OK).body(todoService.updateTodo(todoId, updateTodoRequest, userEmail))
+        return ResponseEntity.status(HttpStatus.OK).body(todoService.updateTodo(todoId, updateTodoRequest))
     }
 
     @DeleteMapping("/{todoId}")
     fun deleteTodo(@PathVariable todoId: Long): ResponseEntity<Unit> {
-        val userEmail = userService.getUserDetails()?.username
-        todoService.deleteTodo(todoId, userEmail)
+        todoService.deleteTodo(todoId)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }
