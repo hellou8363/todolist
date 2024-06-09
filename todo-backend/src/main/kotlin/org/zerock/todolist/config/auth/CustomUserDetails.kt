@@ -39,9 +39,13 @@ class CustomUserDetails(
         return true
     }
 
+    fun getUserId(): Long {
+        return user.id!!
+    }
+
     fun getClaims(): Map<String, Any> {
         val dataMap = mutableMapOf<String, Any>(
-            "email" to user.email
+            "userId" to user.id!!
         )
 
         return dataMap

@@ -21,6 +21,7 @@ import org.zerock.todolist.config.auth.handler.CustomAuthenticationFailureHandle
 import org.zerock.todolist.config.auth.handler.CustomAuthenticationSuccessHandler
 import org.zerock.todolist.config.auth.util.JwtUtil
 import org.zerock.todolist.domain.exception.CustomAccessDeniedException
+import org.zerock.todolist.domain.user.repository.UserRepository
 
 
 @Configuration
@@ -34,12 +35,12 @@ class SecurityConfig(
     fun bCryptPasswordEncoder(): BCryptPasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
-    fun configure(http: HttpSecurity, jwtUtil: JwtUtil): SecurityFilterChain {
+    fun configure(http: HttpSecurity, jwtUtil: JwtUtil, userRepository: UserRepository): SecurityFilterChain {
         return http
             .csrf { it.disable() } // API 서버로 사용하므로 비활성화
             .cors { it.configurationSource(corsConfigurationSource()) } // cors 설정
             .addFilterBefore( // 우선 실행되어야 함
-                JwtCheckFilter(jwtUtil), UsernamePasswordAuthenticationFilter::class.java
+                JwtCheckFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter::class.java
             )
             .addFilterBefore( // JSON 데이터 처리
                 jsonUsernamePasswordAuthenticationFilter(),
@@ -55,7 +56,7 @@ class SecurityConfig(
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
 
-        configuration.setAllowedOriginPatterns(listOf("https://localhost:5173"))
+        configuration.setAllowedOriginPatterns(listOf("*"))
         configuration.allowedMethods = listOf("HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용 HTTP 메서드 지정
         configuration.allowedHeaders = listOf("*") // 허용 HTTP 헤더 지정
         configuration.allowCredentials = true // 자격 증명(쿠키, HTTP 인증, Client SSL 인증 등)

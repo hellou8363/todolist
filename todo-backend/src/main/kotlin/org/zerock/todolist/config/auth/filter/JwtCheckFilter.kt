@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -12,10 +13,13 @@ import org.springframework.web.filter.OncePerRequestFilter
 import org.zerock.todolist.config.auth.CustomUserDetails
 import org.zerock.todolist.domain.user.model.User
 import org.zerock.todolist.config.auth.util.JwtUtil
+import org.zerock.todolist.domain.exception.ModelNotFoundException
 import org.zerock.todolist.domain.user.dto.CreateUserRequest
+import org.zerock.todolist.domain.user.repository.UserRepository
 
 class JwtCheckFilter(
-    private val jwtUtil: JwtUtil
+    private val jwtUtil: JwtUtil,
+    private val userRepository: UserRepository
 ) : OncePerRequestFilter() { // OncePerRequestFilter : 모든 요청에 대해 체크할 때 사용
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean { // 필터로 체크하지 않을 경로 or 메서드 지정
@@ -38,22 +42,15 @@ class JwtCheckFilter(
             val accessToken = authHeader.substring(7) // Bearer
             val claims = jwtUtil.validateToken(accessToken)
 
-            val user = CustomUserDetails(
-                User.from(
-                    CreateUserRequest(
-                        email = claims["email"].toString(),
-                        nickname = claims["nickname"].toString(),
-                        password = claims["password"].toString()
-                    ),
-                    joinType = claims["join_type"].toString(),
-                )
-            )
+            // 토큰 검증은 통과했지만 DB에 없는 유저의 접근을 고려해 토큰에 있는 userId와 일치하는 정보가 있는지 확인
+            val userId = claims["userId"].toString().toLong()
+            val userInfo = userRepository.findByIdOrNull(userId) ?: ModelNotFoundException("User", userId)
+
+            val user = CustomUserDetails(userInfo as User)
 
             val authenticationToken = UsernamePasswordAuthenticationToken(user, user.password, user.authorities)
 
             SecurityContextHolder.getContext().authentication = authenticationToken
-            val context = SecurityContextHolder.getContext()
-            context.authentication = authenticationToken
 
             filterChain.doFilter(request, response)
         } catch (e: Exception) {

@@ -67,6 +67,11 @@ class JwtUtil {
         val accessToken = generateToken(claims, 60)
         val refreshToken = generateToken(claims, 60 * 24)
 
+        // TODO: DB에 refresh token 저장
+        // 1. Redis 설정
+        // 2. 만료시간과 동일하게 리프레쉬 토큰 삭제 설정
+        // 3. 유저 아이디와 토큰을 저장
+
         val refreshTokenCookie = Cookie("TODOLIST_REFRESHTOKEN", refreshToken)
         refreshTokenCookie.path = "/" // 모든 경로에서, 하위 경로를 지정할 경우 해당 경로의 하위 경로에서만 접근 가능
         refreshTokenCookie.maxAge = 60 * 60 * 24 * 30 // 유효기간(초)
@@ -79,6 +84,6 @@ class JwtUtil {
         response.addCookie(refreshTokenCookie) // 응답 헤더에 Cookie를 포함
 
         // accessToken은 Client LocalStorage에 저장하기 위해 응답 본문으로 보냄
-        jacksonObjectMapper().writeValue(response.writer, mapOf("accessToken" to accessToken))
+        jacksonObjectMapper().writeValue(response.writer, mapOf("userId" to claims["userId"],"accessToken" to accessToken))
     }
 }
