@@ -2,14 +2,17 @@ package org.zerock.todolist.domain.user.service
 
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.dao.EmptyResultDataAccessException
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.reactive.function.client.WebClient
 import org.zerock.todolist.config.auth.CustomUserDetails
+import org.zerock.todolist.config.auth.RedisService
 import org.zerock.todolist.config.auth.util.CustomJwtException
 import org.zerock.todolist.config.auth.util.JwtUtil
 import org.zerock.todolist.domain.exception.AlreadyExistsException
+import org.zerock.todolist.domain.exception.ModelNotFoundException
 import org.zerock.todolist.domain.user.dto.CreateUserRequest
 import org.zerock.todolist.domain.user.dto.SigninRequest
 import org.zerock.todolist.domain.user.dto.UserResponse
@@ -21,7 +24,8 @@ import java.util.*
 @Service
 class UserServiceImpl(
     private val userRepository: UserRepository,
-    private val jwtUtil: JwtUtil
+    private val jwtUtil: JwtUtil,
+    private val redisService: RedisService
 ) : UserService {
     @Transactional
     override fun createUser(request: CreateUserRequest, joinType: String): UserResponse { // 일반 회원가입
@@ -49,23 +53,24 @@ class UserServiceImpl(
         return if (principal is CustomUserDetails) principal else null
     }
 
-    fun refresh(authHeader: String, refreshToken: String): Map<String, Any> {
-        if (authHeader.length < 7) {
-            throw CustomJwtException("INVALID_STRING")
+    override fun refresh(accessToken: String, refreshToken: String, response: HttpServletResponse) {
+
+        val _accessToken = accessToken.substring(7)
+
+        // accessToken, refreshToken 검증
+        jwtUtil.validateToken(_accessToken)
+        val refreshTokenUserId = jwtUtil.validateToken(refreshToken)["userId"]
+
+        // userId에 일치하는 DB의 refreshToken 가져오기
+        val dbToken = redisService.getRefreshToken(refreshTokenUserId.toString())
+
+        if(refreshToken == dbToken) {
+            val userInfo = userRepository.findByIdOrNull(refreshTokenUserId.toString().toLong()) ?: ModelNotFoundException("User", null)
+            val claims = CustomUserDetails(userInfo as User).getClaims().toMutableMap()
+
+            // TODO: refresh token은 그대로 유지되도록 별도 메서드 필요
+            jwtUtil.generateTokenToCookie(claims, response)
         }
-
-        val accessToken = authHeader.substring(7)
-
-        if (!checkExpiredToken(accessToken)) { // AccessToken이 만료되지 않았다면 그대로 반환
-            return mapOf("accessToken" to accessToken, "refreshToken" to refreshToken)
-        }
-
-        val claims = jwtUtil.validateToken(refreshToken)
-        val newAccessToken = jwtUtil.generateToken(claims, 60) // 60분
-        val newRefreshToken =
-            if (checkTime(claims["exp"] as Int)) jwtUtil.generateToken(claims, 60 * 24) else refreshToken
-
-        return mapOf("accessToken" to newAccessToken, "refreshToken" to newRefreshToken)
     }
 
     fun checkTime(exp: Int): Boolean { // 1시간 미만 여부
@@ -164,7 +169,9 @@ class UserServiceImpl(
         TODO("Not yet implemented")
     }
 
-
+    override fun logoutUser(userId: String, response: HttpServletResponse) {
+        jwtUtil.deleteTokenToCookie(userId, response)
+    }
 }
 
 

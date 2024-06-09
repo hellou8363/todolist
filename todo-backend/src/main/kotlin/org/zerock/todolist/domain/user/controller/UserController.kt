@@ -24,30 +24,32 @@ class UserController(
     }
 
     @PostMapping("/signin")
-    fun `swagger-ui에 보여지기 위함`(@RequestBody signinRequest: SigninRequest) {
+    fun `swagger-ui에 보여지기 위함`(@RequestBody signinRequest: SigninRequest) { // 일반 회원의 로그인은 Security를 거쳐서 진행됨
     }
 
     @GetMapping("/signin/kakao")
-    fun signinKakao(@RequestParam accessToken: String, response: HttpServletResponse) {
-        log.info("access token: {}", accessToken)
+    fun signinKakao(@RequestParam accessToken: String, response: HttpServletResponse) { // 소셜 로그인은 Controller에서 반환하는 값 X
         userService.signWithKakao(accessToken, response)
-//        return ResponseEntity.status(HttpStatus.CREATED).body(userService.getUserFromKakao(accessToken))
     }
 
+    // TODO: 프런트 작업 후 진행 - 프런트에서 액세스 토큰까지 발급 후 넘겨주는 것으로 하려고 미구현
     @GetMapping("/signin/naver")
-    fun signinNaver(@RequestParam accessToken: String) { // : ResponseEntity<UserResponse>
+    fun signinNaver(@RequestParam accessToken: String) {
         log.info("access token: {}", accessToken)
         userService.getUserFromNaver(accessToken)
     }
 
     @GetMapping("/refresh")
-    fun refreshUser(
+    fun refreshToken(
         @RequestHeader(name = "Authorization") accessToken: String,
-        @CookieValue(name = "TODOLIST_REFRESHTOKEN", required = false) refreshToken: String?
-//        @RequestHeader(name = "TODOLIST_REFRESHTOKEN") refreshToken: String
+        @CookieValue(name = "TODOLIST_REFRESHTOKEN") refreshToken: String,
+        response: HttpServletResponse
     ) {
-        log.info("***** refereshUser")
-        log.info("access token: {}", accessToken)
-        log.info("refresh token: {}", refreshToken)
+        userService.refresh(accessToken, refreshToken, response)
+    }
+
+    @GetMapping("/logout")
+    fun logout(@RequestHeader(name = "userId") userId: String, response: HttpServletResponse) {
+        userService.logoutUser(userId, response)
     }
 }

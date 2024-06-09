@@ -20,4 +20,7 @@ interface UserService {
 
     fun getUserFromNaver(accessToken: String): UserResponse
 
+    fun logoutUser(userId: String, response: HttpServletResponse)
+
+    fun refresh(accessToken: String, refreshToken: String, response: HttpServletResponse)
 }
