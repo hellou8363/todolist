@@ -20,6 +20,10 @@ class UserDetailServiceImpl(
         try {
             user = userRepository.findByEmail(email)
 
+            if(!user.joinType.contains("EMAIL")) {
+                throw UsernameNotFoundException(email)
+            }
+
         } catch (e: InternalAuthenticationServiceException) {
             throw UsernameNotFoundException(email)
         }
