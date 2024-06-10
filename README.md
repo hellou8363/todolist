@@ -253,3 +253,42 @@ class UserDetailServiceImpl(
     }
 }
 ```
+
+</div></details>
+<details>
+    <summary><b>로그아웃 구현</b></summary><div>
+Client로부터 로그아웃 처리할 useId를 전달 받는다.
+
+```kotlin
+@GetMapping("/logout")
+fun logout(@RequestHeader(name = "userId") userId: String, response: HttpServletResponse) {
+    userService.logoutUser(userId, response)
+}
+```
+Service에서 Cookie로 보낸 RefreshToken을 삭제하는 메서드를 호출한다.
+```kotlin
+override fun logoutUser(userId: String, response: HttpServletResponse) {
+    jwtUtil.deleteTokenToCookie(userId, response)
+}
+```
+DB에 저장된 RefreshToken을 삭제하고 브라우저에 저장한 Cookie의 만료 시간을 0으로 설정해 삭제 되도록 응답을 보낸다.
+``` kotlin
+fun deleteTokenToCookie(userId: String, response: HttpServletResponse) {
+
+    // DB에 저장된 RefreshToken 삭제
+    redisService.delete(userId)
+
+    // 브라우저에 저장한 RefreshToken 삭제
+    val refreshTokenCookie = Cookie("TODOLIST_REFRESHTOKEN", null)
+    refreshTokenCookie.path = "/" // 모든 경로에서 접근 가능
+    refreshTokenCookie.maxAge = 0 // 유효기간(초)
+    refreshTokenCookie.secure = true // HTTPS를 통해 전송되는 경우 쿠키 전송
+    refreshTokenCookie.isHttpOnly = true // 브라우저에서 쿠키 접근 X
+
+    response.status = HttpStatus.NO_CONTENT. value()
+    response.contentType = MediaType.APPLICATION_JSON_VALUE
+
+    response.addCookie(refreshTokenCookie) // 응답 헤더에 Cookie를 포함
+}
+```
+</div></details>
