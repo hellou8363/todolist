@@ -11,10 +11,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import org.zerock.todolist.config.auth.CustomUserDetails
-import org.zerock.todolist.domain.user.model.User
 import org.zerock.todolist.config.auth.util.JwtUtil
 import org.zerock.todolist.domain.exception.ModelNotFoundException
-import org.zerock.todolist.domain.user.dto.CreateUserRequest
+import org.zerock.todolist.domain.user.model.User
 import org.zerock.todolist.domain.user.repository.UserRepository
 
 class JwtCheckFilter(
