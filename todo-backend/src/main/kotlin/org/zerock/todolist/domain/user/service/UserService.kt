@@ -14,7 +14,7 @@ interface UserService {
 
     fun signWithKakao(accessToken: String, response: HttpServletResponse)
 
-    fun getUserDetails(): CustomUserDetails?
+    fun getUserDetails(): Long
 
     fun getUserFromKakao(accessToken: String): Map<String, String>
 

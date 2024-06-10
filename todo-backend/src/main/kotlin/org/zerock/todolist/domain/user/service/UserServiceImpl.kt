@@ -48,9 +48,10 @@ class UserServiceImpl(
         jwtUtil.generateTokenToCookie(claims, response)
     }
 
-    override fun getUserDetails(): CustomUserDetails? {
-        val principal = SecurityContextHolder.getContext().authentication.principal
-        return if (principal is CustomUserDetails) principal else null
+    override fun getUserDetails(): Long {
+        val principal = SecurityContextHolder.getContext().authentication.principal as Long
+        return principal
+//        return if (principal is CustomUserDetails) principal else null
     }
 
     override fun refresh(accessToken: String, refreshToken: String, response: HttpServletResponse) {
@@ -64,8 +65,12 @@ class UserServiceImpl(
         // userId에 일치하는 DB의 refreshToken 가져오기
         val dbToken = redisService.getRefreshToken(refreshTokenUserId.toString())
 
-        if(refreshToken == dbToken) {
-            val userInfo = userRepository.findByIdOrNull(refreshTokenUserId.toString().toLong()) ?: ModelNotFoundException("User", null)
+        if (refreshToken == dbToken) {
+            val userInfo =
+                userRepository.findByIdOrNull(refreshTokenUserId.toString().toLong()) ?: ModelNotFoundException(
+                    "User",
+                    null
+                )
             val claims = CustomUserDetails(userInfo as User).getClaims().toMutableMap()
 
             // TODO: refresh token은 그대로 유지되도록 별도 메서드 필요

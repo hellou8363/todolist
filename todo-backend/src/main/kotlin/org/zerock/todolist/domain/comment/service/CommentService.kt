@@ -10,9 +10,9 @@ interface CommentService {
 
     fun getCommentById(commentId: Long): CommentResponse
 
-    fun createComment(todoId: Long, request: CreateAndUpdateCommentRequest, userEmail: String?): CommentResponse
+    fun createComment(todoId: Long, request: CreateAndUpdateCommentRequest): CommentResponse
 
-    fun updateComment(todoId: Long, commentId: Long, request: CreateAndUpdateCommentRequest, userEmail: String?): CommentResponse
+    fun updateComment(todoId: Long, commentId: Long, request: CreateAndUpdateCommentRequest): CommentResponse
 
-    fun deleteComment(todoId: Long, commentId: Long, request: DeleteCommentRequest, userEmail: String?)
+    fun deleteComment(todoId: Long, commentId: Long, request: DeleteCommentRequest)
 }
