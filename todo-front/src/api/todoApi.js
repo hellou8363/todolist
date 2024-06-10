@@ -17,12 +17,12 @@ export const createTodo = (title, writer, content) => {
     headers: header,
     body: JSON.stringify(formBody),
   })
-  .then((res) => {
-    if (!res.ok) {
-      console.log(res)
-    }
-    return res.json();
-  })
+    .then((res) => {
+      if (!res.ok) {
+        console.log(res);
+      }
+      return res.json();
+    })
     .catch((err) => console.log(err));
 };
 
@@ -43,16 +43,31 @@ export const updateTodo = (todoId, title, writer, content) => {
     headers: header,
     body: JSON.stringify(formBody),
   })
-  .then((res) => {
-    if (!res.ok) {
-      console.log(res)
-    }
-    return res.json();
-  })
+    .then((res) => {
+      if (!res.ok) {
+        console.log(res);
+      }
+      return res.json();
+    })
     .catch((err) => console.log(err));
+};
 
-}
+export const deleteTodo = (todoId) => {
+  fetch(`${BASE_URI}/todos/${todoId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("todolist_access_token")}`,
+    },
+  })
+    .then((res) => {
+      if (!res.ok) {
+        console.log(res);
+      }
 
-export const deleteTodo = id => {
-  
-}
+      if (res.status === 204) {
+        console.log("204")
+      }
+    })
+    .catch((err) => console.log(err));
+};
