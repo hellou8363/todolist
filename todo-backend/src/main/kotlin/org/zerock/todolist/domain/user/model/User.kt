@@ -16,7 +16,9 @@ class User private constructor(
     @Column(name = "join_type")
     var joinType: String = "EMAIL"
 ) : BaseEntity() {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long? = null
 
     companion object {
         fun from(createUserRequest: CreateUserRequest, joinType: String): User {
@@ -30,10 +32,6 @@ class User private constructor(
             )
         }
     }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
 }
 
 fun User.toResponse(): UserResponse {
