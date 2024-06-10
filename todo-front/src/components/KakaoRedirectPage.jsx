@@ -10,6 +10,7 @@ const KakaoRedirectPage = () => {
   useEffect(() => {
     getAccessToken(authCode).then((data) => {
       getJwtToken(data.access_token).then((data) => {
+        localStorage.setItem("todolist_user_id", data.userId); // Todo 상세 페이지에서 수정, 삭제 버튼 활성/비활성화를 위함
         localStorage.setItem("todolist_access_token", data.accessToken);
       });
     });
