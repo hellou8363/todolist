@@ -1,14 +1,12 @@
 import "./Card.css";
 import PropTypes from "prop-types";
+import { dateFormat } from "../util/dateUtil";
 
-const Card = ({ title, writer, content, createdAt }) => {
-  const date = new Date(createdAt);
-  const createDate = `${date.getFullYear()}-${
-    date.getMonth() < 10 ? "0" + date.getMonth() : date.getMonth()
-  }-${date.getDay() < 10 ? "0" + date.getDay() : date.getDay()}`;
+const Card = ({ title, writer, content, createdAt, onClick }) => {
+  const createDate = dateFormat(createdAt);
 
   return (
-    <div className="card">
+    <div className="card" onClick={onClick}>
       <p className="title">{title}</p>
       <p className="writer">{writer}</p>
       <p className="content">{content}</p>
@@ -22,6 +20,7 @@ Card.propTypes = {
   writer: PropTypes.string,
   content: PropTypes.string,
   createdAt: PropTypes.string,
+  onClick: PropTypes.func,
 };
 
 export default Card;

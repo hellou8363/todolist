@@ -1,5 +1,7 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./Details.css";
+import { deleteTodo } from "../api/todoApi";
+import { dateFormat } from "../util/dateUtil";
 
 const Details = () => {
   const userId = Number(localStorage.getItem("todolist_user_id"));
@@ -7,12 +9,7 @@ const Details = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const todo = { ...location.state };
-  const date = new Date(todo.createdAt);
-  const createDate = `${date.getFullYear()}-${
-    date.getMonth() < 10 ? "0" + date.getMonth() : date.getMonth()
-  }-${date.getDay() < 10 ? "0" + date.getDay() : date.getDay()}`;
-
-  // TODO: 삭제 버튼 이벤트
+  const createDate = dateFormat(todo.createdAt);
 
   return (
     <>
@@ -25,17 +22,35 @@ const Details = () => {
         <p className="content">{todo.content}</p>
         {todo.userId === userId && (
           <div className="bottom-menu">
-            <button onClick={() => {
-              navigate(`/todos`, {
-                state: {
-                  todoId: todoId,
-                  title: todo.title,
-                  writer: todo.writer,
-                  content: todo.content
+            <button
+              onClick={() => {
+                navigate(`/todos`, {
+                  state: {
+                    todoId: todoId,
+                    title: todo.title,
+                    writer: todo.writer,
+                    content: todo.content,
+                  },
+                });
+              }}
+            >
+              수정
+            </button>
+            <button
+              onClick={() => {
+                const answer = confirm("정말 삭제하시겠습니까?");
+
+                if (answer) {
+                  deleteTodo(todoId);
+                  setTimeout(() => {
+                    // Http Status 204는 No Content라서 다음과 같이 처리
+                    navigate("/");
+                  }, 500);
                 }
-              })
-            }}>수정</button>
-            <button>삭제</button>
+              }}
+            >
+              삭제
+            </button>
           </div>
         )}
       </div>
