@@ -134,3 +134,119 @@ org.zerock.todolist
 ### 회원가입 및 로그인 화면
 ![todolist_회원가입및로그인화면](https://github.com/hellou8363/todolist/assets/89592727/7c01d0a5-93f4-4101-a943-1419019fdea3)
 
+## 코드 설명
+<details>
+    <summary><b>소셜 회원가입 및 로그인 구현</b></summary>
+    <div markdown="1">
+Client로부터 Kakao의 AccessToken을 전달 받는다.  
+
+```kotlin
+@GetMapping("/signin/kakao")
+fun signinKakao(@RequestParam accessToken: String, response: HttpServletResponse) { 
+    userService.signWithKakao(accessToken, response)
+}
+```
+
+Service에서 진행되는 로직은 다음과 같다.
+1. AccessToken으로 카카오에서 회원 정보를 가져온다.
+2. Database에 카카오 회원 정보의 이메일과 일치하는 이메일이 있는지 확인한다.  
+    2-1. 일치하는 이메일이 있다면 예외 발생 없이 userInfo 변수에 해당 회원의 정보가 담긴다.  
+    2-2. 일치하는 이메일이 없다면 EmptyResultDataAccessException 예외가 발생하며 5번을 수행한다.
+3. 가져온 회원 정보의 이메일이 이미 카카오로 가입된 회원인지 확인한다.  
+    3-1. 이미 카카오로 가입된 회원이면 로그인으로 처리한다.  
+    3-2. 카카오로 가입된 회원이 아니라면 일반회원(default)으로 가입된 회원이므로 가입종류에 "KAKAO"를 추가한 후 로그인 처리한다.  
+4. EmptyResultDataAccessException 예외가 발생했다는 것은 DB에 이메일과 일치하는 회원 정보가 없기 때문으로 신규가입 처리한다.  
+    4-1. 신규회원으로 등한다.  
+    4-2. 신규회원으로 등록된 정보로 로그인 처리한다.
+
+```kotlin
+@Transactional
+override fun signWithKakao(accessToken: String, response: HttpServletResponse) {
+
+    // 1. 카카오에서 회원 정보를 가져옴
+    val kakaoUserInfo = getUserFromKakao(accessToken)
+
+    try {
+        // 2. DB에 가져온 회원 정보의 이메일이 존재하는지 확인
+        val userInfo = userRepository.findByEmail(kakaoUserInfo["email"] as String)
+
+         // 3. 이미 카카오로 가입된 회원인지 확인
+        if (userInfo.joinType.contains("KAKAO")) {
+
+            // 3-1. 로그인 처리
+            return signinUser(
+                SigninRequest(
+                    kakaoUserInfo["email"] as String,
+                    "null"
+                ),
+                response
+            )
+        }
+
+        // 3-2. 가입종류에 KAKAO 추가 후 로그인 처리
+        // 2번에서 예외가 발생하지 않는 것은 회원 정보가 존재하기 때문
+        // 회원가입의 기본 jointype은 "EMAIL"
+        userInfo.joinType = "${userInfo.joinType}, KAKAO"
+
+        return signinUser(
+            SigninRequest(
+                kakaoUserInfo["email"] as String,
+                   "null"
+            ),
+            response
+        )
+
+    // 4. EmptyResultDataAccessException 예외가 발생했다는 것은
+    // DB에 이메일과 일치하는 회원 정보가 없기 때문
+    } catch (e: EmptyResultDataAccessException) { 
+
+        // 4-1. 신규회원으로 등록
+        createUser(
+            CreateUserRequest(
+                kakaoUserInfo["email"].toString(),
+                kakaoUserInfo["nickname"].toString(),
+                "null"
+            ),
+            joinType = "KAKAO"
+        )
+
+        // 4-2. 신규회원으로 등록된 정보로 로그인 처리
+        return signinUser(
+            SigninRequest(
+                kakaoUserInfo["email"] as String,
+                 "null"
+            ),
+           response
+        )
+    }
+}
+```
+
+</div></details>
+<details>
+    <summary><b>소셜 로그인 회원 가입 처리 시 비밀번호를 "null"로 설정함으로 인해 일반 가입을 하지 않은 회원이 소셜 이메일로 일반 로그인을 시도할 수 있지 않은가?</b></summary><div>
+해당 부분은 UserDetailsService 구현 클래스의 loadUserByUsername에서 사용자 정보를 불러온 후 가입종류(jointype)에 기본 가입 종류인 "EMAIL"이 없다면 401 Unauthorized이 발생되도록 처리했다.
+
+```kotlin
+class UserDetailServiceImpl(
+    private val userRepository: UserRepository
+) : UserDetailsService {
+
+    override fun loadUserByUsername(email: String): UserDetails {
+        var user: User
+
+        try {
+            user = userRepository.findByEmail(email)
+
+            if(!user.joinType.contains("EMAIL")) {
+                throw UsernameNotFoundException(email)
+            }
+
+        } catch (e: InternalAuthenticationServiceException) {
+            throw UsernameNotFoundException(email)
+        }
+
+        return CustomUserDetails(user)
+    }
+}
+```
