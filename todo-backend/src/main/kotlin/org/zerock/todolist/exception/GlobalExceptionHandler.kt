@@ -1,4 +1,4 @@
-package org.zerock.todolist.domain.exception
+package org.zerock.todolist.exception
 
 import org.springframework.data.mapping.PropertyReferenceException
 import org.springframework.http.HttpStatus
@@ -7,7 +7,7 @@ import org.springframework.validation.BindingResult
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import org.zerock.todolist.domain.exception.dto.ErrorResponse
+import org.zerock.todolist.exception.dto.ErrorResponse
 import org.zerock.todolist.config.auth.util.CustomJwtException
 
 @RestControllerAdvice

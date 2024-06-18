@@ -1,4 +1,4 @@
-package org.zerock.todolist.domain.exception
+package org.zerock.todolist.exception
 
 data class ModelNotFoundException(
     val modelName: String,

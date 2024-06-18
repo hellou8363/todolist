@@ -1,4 +1,4 @@
-package org.zerock.todolist.domain.exception.dto
+package org.zerock.todolist.exception.dto
 
 data class ErrorResponse(
     val message: String?,

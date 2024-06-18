@@ -1,4 +1,4 @@
-package org.zerock.todolist.domain.exception
+package org.zerock.todolist.exception
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.servlet.http.HttpServletRequest
