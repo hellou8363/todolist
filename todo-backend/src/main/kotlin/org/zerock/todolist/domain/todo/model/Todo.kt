@@ -12,20 +12,28 @@ import org.zerock.todolist.domain.user.model.User
 @Entity
 @Table(name = "todo")
 class Todo private constructor(
-    var title: String,
-    var content: String,
-    var writer: String,
+    title: String,
+    content: String,
+    writer: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    var user: User
+    val user: User
 ) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
+    var title: String = title
+        protected set
+    var content: String = content
+        protected set
+    var writer: String = writer
+        protected set
+
     @Enumerated(EnumType.STRING)
     var completed: TodoCompleted = TodoCompleted.FALSE
+        protected set
 
     @OneToMany(mappedBy = "todo", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     val comments: MutableList<Comment> = mutableListOf()
@@ -40,6 +48,13 @@ class Todo private constructor(
             )
         }
     }
+
+    fun update(title: String?, content: String?, writer: String?, completed: TodoCompleted?) {
+        title?.let { this.title = it }
+        content?.let { this.content = it }
+        writer?.let { this.writer = it }
+        completed?.let { this.completed = it }
+    }
 }
 
 fun Todo.toResponse(): TodoResponse {
@@ -47,13 +62,5 @@ fun Todo.toResponse(): TodoResponse {
 }
 
 fun Todo.toListResponse(): TodoListResponse {
-//    return TodoListResponse(id!!, title, content, user.id!! ,writer, createdAt, completed}) // 프런트용
-    return TodoListResponse(
-        id!!,
-        title,
-        content,
-        writer,
-        createdAt,
-        completed,
-        comments.map { it.toResponse() }) // STEP 4 과제용
+    return TodoListResponse(id!!, title, content, user.id!!, writer, createdAt, completed)
 }
