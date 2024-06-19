@@ -3,7 +3,6 @@ package org.zerock.todolist.domain.user.service
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.reactive.function.client.WebClient
@@ -11,14 +10,14 @@ import org.zerock.todolist.config.auth.CustomUserDetails
 import org.zerock.todolist.config.auth.RedisService
 import org.zerock.todolist.config.auth.util.CustomJwtException
 import org.zerock.todolist.config.auth.util.JwtUtil
-import org.zerock.todolist.domain.exception.AlreadyExistsException
-import org.zerock.todolist.domain.exception.ModelNotFoundException
 import org.zerock.todolist.domain.user.dto.CreateUserRequest
 import org.zerock.todolist.domain.user.dto.SigninRequest
 import org.zerock.todolist.domain.user.dto.UserResponse
 import org.zerock.todolist.domain.user.model.User
 import org.zerock.todolist.domain.user.model.toResponse
 import org.zerock.todolist.domain.user.repository.UserRepository
+import org.zerock.todolist.exception.AlreadyExistsException
+import org.zerock.todolist.exception.ModelNotFoundException
 import java.util.*
 
 @Service
@@ -27,6 +26,7 @@ class UserServiceImpl(
     private val jwtUtil: JwtUtil,
     private val redisService: RedisService
 ) : UserService {
+
     @Transactional
     override fun createUser(request: CreateUserRequest, joinType: String): UserResponse { // 일반 회원가입
         val isExistEmail = userRepository.existsByEmail(request.email)
@@ -40,6 +40,10 @@ class UserServiceImpl(
         ).toResponse()
     }
 
+    override fun getUser(userId: Long): User {
+        return userRepository.findByIdOrNull(userId) ?: throw ModelNotFoundException("User", userId)
+    }
+
     override fun signinUser(request: SigninRequest, response: HttpServletResponse) { // 로그인 처리(token 발급)
         val user = userRepository.findByEmail(request.email)
         val userDetails = CustomUserDetails(user)
@@ -48,20 +52,11 @@ class UserServiceImpl(
         jwtUtil.generateTokenToCookie(claims, response)
     }
 
-    override fun getUserDetails(): Long {
-        val principal = SecurityContextHolder.getContext().authentication.principal as Long
-        return principal
-//        return if (principal is CustomUserDetails) principal else null
-    }
-
     override fun refresh(accessToken: String, refreshToken: String, response: HttpServletResponse) {
-
-        val _accessToken = accessToken.substring(7)
-
         // accessToken, refreshToken 검증
-        jwtUtil.validateToken(_accessToken)
-        val refreshTokenUserId = jwtUtil.validateToken(refreshToken)["userId"]
+        jwtUtil.validateToken(accessToken.split(" ")[1])
 
+        val refreshTokenUserId = jwtUtil.validateToken(refreshToken)["userId"]
         // userId에 일치하는 DB의 refreshToken 가져오기
         val dbToken = redisService.getRefreshToken(refreshTokenUserId.toString())
 
@@ -99,9 +94,10 @@ class UserServiceImpl(
     }
 
     @Transactional
-    override fun signWithKakao(accessToken: String, response: HttpServletResponse) {
+    override fun signinWithKakao(accessToken: String, response: HttpServletResponse) {
         val kakaoUserInfo = getUserFromKakao(accessToken)
 
+        // id, 개인정보, joinType = EMAIL, KAKAO, ..
         try {
             val userInfo = userRepository.findByEmail(kakaoUserInfo["email"] as String)
 
