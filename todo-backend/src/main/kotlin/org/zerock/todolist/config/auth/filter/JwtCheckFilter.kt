@@ -9,6 +9,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
+import org.zerock.todolist.config.auth.util.CustomJwtException
 import org.zerock.todolist.config.auth.util.JwtUtil
 
 class JwtCheckFilter(
@@ -23,16 +24,19 @@ class JwtCheckFilter(
         return "GET" == request.method || urls.any { path.startsWith(it) }
     }
 
-    override fun doFilterInternal(
-        // 모든 요청에 대해 체크하려고 할 때 사용
+    override fun doFilterInternal( // 모든 요청에 대해 체크하려고 할 때 사용
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain,
     ) {
-        val authHeader = request.getHeader("Authorization")
-
         try {
-            val accessToken = authHeader.substring(7) // Bearer
+            val authHeader = request.getHeader("Authorization") ?: throw CustomJwtException("No token provided")
+
+            if (!authHeader.startsWith("Bearer")) {
+                throw CustomJwtException("Token type mismatch")
+            }
+
+            val accessToken = authHeader.split(" ")[1] // Bearer + " " 이후의 Token 값
             val claims = jwtUtil.validateToken(accessToken)
             val userId = claims["userId"].toString().toLong()
             val authenticationToken = UsernamePasswordAuthenticationToken(userId, null)
@@ -40,19 +44,13 @@ class JwtCheckFilter(
             SecurityContextHolder.getContext().authentication = authenticationToken
 
             filterChain.doFilter(request, response)
-        } catch (e: Exception) {
+        } catch (e: CustomJwtException) {
             logger.error(e.message)
-
-            var errorMessage = e.message
-
-            if (e.message == null) { // 헤더에 토큰을 넣지 않은 경우: NullPointException
-                errorMessage = "No token"
-            }
 
             response.status = HttpStatus.BAD_REQUEST.value()
             response.contentType = MediaType.APPLICATION_JSON_VALUE
 
-            jacksonObjectMapper().writeValue(response.writer, errorMessage)
+            jacksonObjectMapper().writeValue(response.writer, e.message)
         }
     }
 }
