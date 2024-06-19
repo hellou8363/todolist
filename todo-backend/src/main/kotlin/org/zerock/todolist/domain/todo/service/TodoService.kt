@@ -13,9 +13,9 @@ interface TodoService {
 
     fun getTodoById(todoId: Long): TodoResponse
 
-    fun createTodo(request: CreateTodoRequest): TodoResponse
+    fun createTodo(userId: Long, request: CreateTodoRequest): TodoResponse
 
-    fun updateTodo(todoId: Long, request: UpdateTodoRequest): TodoResponse
+    fun updateTodo(todoId: Long, userId: Long, request: UpdateTodoRequest): TodoResponse
 
-    fun deleteTodo(todoId: Long)
+    fun deleteTodo(todoId: Long, userId: Long)
 }

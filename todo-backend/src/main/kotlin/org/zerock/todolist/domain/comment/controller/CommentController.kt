@@ -2,6 +2,7 @@ package org.zerock.todolist.domain.comment.controller
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import org.zerock.todolist.domain.comment.dto.CommentResponse
 import org.zerock.todolist.domain.comment.dto.CreateAndUpdateCommentRequest
@@ -17,29 +18,32 @@ class CommentController(
     @PostMapping("/comments")
     fun createComment(
         @PathVariable todoId: Long,
+        @AuthenticationPrincipal userId: Long,
         @RequestBody createAndUpdateCommentRequest: CreateAndUpdateCommentRequest
     ): ResponseEntity<CommentResponse> {
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(commentService.createComment(todoId, createAndUpdateCommentRequest))
+            .body(commentService.createComment(todoId, userId, createAndUpdateCommentRequest))
     }
 
     @PutMapping("/comments/{commentId}")
     fun updateComment(
         @PathVariable todoId: Long,
         @PathVariable commentId: Long,
+        @AuthenticationPrincipal userId: Long,
         @RequestBody createAndUpdateCommentRequest: CreateAndUpdateCommentRequest
     ): ResponseEntity<CommentResponse> {
         return ResponseEntity.status(HttpStatus.OK)
-            .body(commentService.updateComment(todoId, commentId, createAndUpdateCommentRequest))
+            .body(commentService.updateComment(todoId, commentId, userId, createAndUpdateCommentRequest))
     }
 
     @DeleteMapping("/comments/{commentId}")
     fun deleteComment(
         @PathVariable todoId: Long,
         @PathVariable commentId: Long,
+        @AuthenticationPrincipal userId: Long,
         @RequestBody deleteCommentRequest: DeleteCommentRequest
     ): ResponseEntity<Unit> {
-        commentService.deleteComment(todoId, commentId, deleteCommentRequest)
+        commentService.deleteComment(todoId, commentId, userId, deleteCommentRequest)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
 import org.zerock.todolist.domain.todo.dto.TodoListResponse
@@ -33,21 +34,28 @@ class TodoController(
     }
 
     @PostMapping
-    fun createTodo(@Valid @RequestBody createTodoRequest: CreateTodoRequest): ResponseEntity<TodoResponse> {
-        return ResponseEntity.status(HttpStatus.CREATED).body(todoService.createTodo(createTodoRequest))
+    fun createTodo(
+        @AuthenticationPrincipal userId: Long,
+        @Valid @RequestBody createTodoRequest: CreateTodoRequest,
+    ): ResponseEntity<TodoResponse> {
+        return ResponseEntity.status(HttpStatus.CREATED).body(todoService.createTodo(userId, createTodoRequest))
     }
 
     @PutMapping("/{todoId}")
     fun updateTodo(
+        @AuthenticationPrincipal userId: Long,
         @PathVariable todoId: Long,
         @RequestBody updateTodoRequest: UpdateTodoRequest
     ): ResponseEntity<TodoResponse> {
-        return ResponseEntity.status(HttpStatus.OK).body(todoService.updateTodo(todoId, updateTodoRequest))
+        return ResponseEntity.status(HttpStatus.OK).body(todoService.updateTodo(todoId, userId, updateTodoRequest))
     }
 
     @DeleteMapping("/{todoId}")
-    fun deleteTodo(@PathVariable todoId: Long): ResponseEntity<Unit> {
-        todoService.deleteTodo(todoId)
+    fun deleteTodo(
+        @AuthenticationPrincipal userId: Long,
+        @PathVariable todoId: Long
+    ): ResponseEntity<Unit> {
+        todoService.deleteTodo(todoId, userId)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }

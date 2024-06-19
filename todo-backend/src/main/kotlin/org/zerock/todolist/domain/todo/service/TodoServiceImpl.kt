@@ -5,8 +5,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.zerock.todolist.domain.exception.CustomAccessDeniedException
-import org.zerock.todolist.domain.exception.ModelNotFoundException
 import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
 import org.zerock.todolist.domain.todo.dto.TodoListResponse
 import org.zerock.todolist.domain.todo.dto.TodoResponse
@@ -16,13 +14,13 @@ import org.zerock.todolist.domain.todo.model.toListResponse
 import org.zerock.todolist.domain.todo.model.toResponse
 import org.zerock.todolist.domain.todo.repository.TodoRepository
 import org.zerock.todolist.domain.user.repository.UserRepository
-import org.zerock.todolist.domain.user.service.UserService
+import org.zerock.todolist.exception.CustomAccessDeniedException
+import org.zerock.todolist.exception.ModelNotFoundException
 
 @Service
 class TodoServiceImpl(
     private val todoRepository: TodoRepository,
-    private val userRepository: UserRepository,
-    private val userService: UserService
+    private val userRepository: UserRepository
 ) : TodoService {
 
     override fun getAllTodoList(pageable: Pageable, writer: String?): Page<TodoListResponse> {
@@ -30,7 +28,6 @@ class TodoServiceImpl(
             todoRepository.searchTodoListByWriter(writer, pageable).map { it.toListResponse() }
         } else {
             todoRepository.findAll(pageable).map { it.toListResponse() }
-//            todoRepository.findAllTodoList(pageable).map { it.toListResponse() } // STEP 4 과제용
         }
     }
 
@@ -40,9 +37,9 @@ class TodoServiceImpl(
     }
 
     @Transactional
-    override fun createTodo(request: CreateTodoRequest): TodoResponse {
-        val user = userService.getUserDetails()
-            .let { userRepository.findByIdOrNull(it) } ?: throw ModelNotFoundException("User", null)
+    override fun createTodo(userId: Long, request: CreateTodoRequest): TodoResponse {
+        val user = userRepository.findByIdOrNull(userId) ?: throw ModelNotFoundException("User", userId)
+
         return todoRepository.save(
             Todo.from(
                 request,
@@ -52,31 +49,28 @@ class TodoServiceImpl(
     }
 
     @Transactional
-    override fun updateTodo(todoId: Long, request: UpdateTodoRequest): TodoResponse {
-        val user = userService.getUserDetails()
-            .let { userRepository.findByIdOrNull(it) } ?: throw ModelNotFoundException("User", null)
+    override fun updateTodo(todoId: Long, userId: Long, request: UpdateTodoRequest): TodoResponse {
         val todo = todoRepository.findByIdOrNull(todoId) ?: throw ModelNotFoundException("Todo", todoId)
 
-        if (todo.user != user) {
+        if (todo.user.id != userId) {
             throw CustomAccessDeniedException("You do not have access.")
         }
 
-        val (title, content, writer) = request
-
-        todo.title = title
-        todo.content = content
-        todo.writer = writer
+        todo.update(
+            title = request.title,
+            content = request.content,
+            writer = request.writer,
+            completed = request.completed
+        )
 
         return todoRepository.save(todo).toResponse()
     }
 
     @Transactional
-    override fun deleteTodo(todoId: Long) {
-        val user = userService.getUserDetails()
-            .let { userRepository.findByIdOrNull(it) } ?: throw ModelNotFoundException("User", null)
+    override fun deleteTodo(todoId: Long, userId: Long) {
         val todo = todoRepository.findByIdOrNull(todoId) ?: throw ModelNotFoundException("Todo", todoId)
 
-        if (todo.user != user) {
+        if (todo.user.id != userId) {
             throw CustomAccessDeniedException("You do not have access.")
         }
 
