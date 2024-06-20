@@ -3,33 +3,25 @@ import { useInView } from "react-intersection-observer";
 import Card from "../components/Card";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";
-import { BASE_URI } from "../api/apiKey";
+import { getTodoList } from "../api/todoApi";
 
 const Home = () => {
   const [todos, setTodos] = useState([]);
   const [page, setPage] = useState(0);
+  const size = 10;
   const totalCount = useRef(1);
   const [ref, inView] = useInView();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (inView && todos.length < totalCount.current) {
-      todoFetch();
-    }
-  }, [inView]);
-
-  const todoFetch = () => {
-    fetch(`${BASE_URI}/todos?page=${page}&size=10`)
-      .then((res) => res.json())
-      .then((data) => {
+      getTodoList(page, size).then((data) => {
         setTodos([...todos, ...data.content]);
         setPage((page) => page + 1);
         totalCount.current = data.totalElements;
-      })
-      .catch((err) => {
-        console.log(err);
       });
-  };
+    }
+  }, [inView]);
 
   return (
     <>
@@ -44,8 +36,8 @@ const Home = () => {
                     content: value.content,
                     userId: value.userId,
                     writer: value.writer,
-                    createdAt: value.createdAt
-                  }
+                    createdAt: value.createdAt,
+                  },
                 });
               }}
               key={value.id}

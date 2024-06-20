@@ -1,5 +1,16 @@
 import { BASE_URI } from "./apiKey";
 
+export const getTodoList = async (page, size) => {
+  return fetch(`${BASE_URI}/todos?page=${page}&size=${size}`)
+    .then((res) => {
+      if (!res.ok) {
+        console.log(res);
+      }
+      return res.json();
+    })
+    .catch((err) => console.log(err));
+};
+
 export const createTodo = (title, writer, content) => {
   const header = {
     "Content-Type": "application/json",
@@ -66,7 +77,7 @@ export const deleteTodo = (todoId) => {
       }
 
       if (res.status === 204) {
-        console.log("204")
+        console.log("204");
       }
     })
     .catch((err) => console.log(err));
