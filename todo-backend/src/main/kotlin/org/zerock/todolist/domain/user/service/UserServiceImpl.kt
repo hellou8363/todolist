@@ -99,26 +99,26 @@ class UserServiceImpl(
 
         // id, 개인정보, joinType = EMAIL, KAKAO, ..
         try {
-            val userInfo = userRepository.findByEmail(kakaoUserInfo["email"] as String)
+            val user = userRepository.findByEmail(kakaoUserInfo["email"] as String)
 
             // 이미 카카오 소셜로 가입된 회원이면 로그인 처리
-            if (userInfo.joinType.contains("KAKAO")) {
+            if (user.joinType.contains("KAKAO")) {
                 return signinUser(
                     SigninRequest(
                         kakaoUserInfo["email"] as String,
-                        "null"
+                        ""
                     ),
                     response
                 )
             }
 
             // 일반회원으로 가입된 적이 있는 경우 가입종류에 KAKAO 추가 후 로그인 처리
-            userInfo.joinType = "${userInfo.joinType}, KAKAO"
+            user.addJoinType("KAKAO")
 
             return signinUser(
                 SigninRequest(
                     kakaoUserInfo["email"] as String,
-                    "null"
+                    ""
                 ),
                 response
             )
@@ -127,7 +127,7 @@ class UserServiceImpl(
                 CreateUserRequest(
                     kakaoUserInfo["email"].toString(),
                     kakaoUserInfo["nickname"].toString(),
-                    "null"
+                    ""
                 ),
                 joinType = "KAKAO"
             )
@@ -135,7 +135,7 @@ class UserServiceImpl(
             return signinUser(
                 SigninRequest(
                     kakaoUserInfo["email"] as String,
-                    "null"
+                    ""
                 ),
                 response
             )

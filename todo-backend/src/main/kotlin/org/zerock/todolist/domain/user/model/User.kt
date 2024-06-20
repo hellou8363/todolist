@@ -12,13 +12,15 @@ class User private constructor(
     val email: String,
     val nickname: String,
     val password: String,
-
-    @Column(name = "join_type")
-    var joinType: String = "EMAIL"
+    joinType: String = "EMAIL"
 ) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
+
+    @Column(name = "join_type")
+    var joinType: String = joinType
+        protected set
 
     companion object {
         fun from(createUserRequest: CreateUserRequest, joinType: String): User {
@@ -31,6 +33,10 @@ class User private constructor(
                 joinType
             )
         }
+    }
+
+    fun addJoinType(joinType: String) {
+        this.joinType += ",$joinType"
     }
 }
 
