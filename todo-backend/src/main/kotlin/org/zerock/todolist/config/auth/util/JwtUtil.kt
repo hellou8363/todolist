@@ -17,25 +17,31 @@ import javax.crypto.SecretKey
 
 @Component
 class JwtUtil(
-    private val redisService: RedisService
+    private val redisService: RedisService,
+    @Value("\${jwt.secret}")
+    private val key: String,
+    @Value("\${jwt.accessTokenExpirationHour}")
+    private val accessTokenExpirationHour: Long,
+    @Value("\${jwt.refreshTokenExpirationHour}")
+    private val refreshTokenExpirationHour: Long
 ) {
-    @Value("\${JWT_KEY}")
-    private lateinit var key: String
+    private val refreshTokenName = "TODOLIST_REFRESHTOKEN"
+    private val cookieMaxAge: Int = 60 * 60 * 24 * 30
 
-    fun generateToken(valueMap: Map<String, Any>, min: Long): String { // JWT 문자열 생성
+    fun generateToken(valueMap: Map<String, Any>, hour: Long): String { // JWT 문자열 생성
         val key: SecretKey?
 
         try {
             key = Keys.hmacShaKeyFor(this.key.toByteArray(StandardCharsets.UTF_8))
         } catch (e: Exception) {
-            throw RuntimeException(e.message)
+            throw e.message?.let { CustomJwtException(it) }!!
         }
 
         return Jwts.builder()
             .setHeader(mapOf<String, Any>("typ" to "JWT"))
             .setClaims(valueMap)
             .setIssuedAt(Date.from(ZonedDateTime.now().toInstant()))
-            .setExpiration(Date.from(ZonedDateTime.now().plusMinutes(min).toInstant()))
+            .setExpiration(Date.from(ZonedDateTime.now().plusHours(hour).toInstant()))
             .signWith(key)
             .compact()
     }
@@ -67,14 +73,14 @@ class JwtUtil(
     }
 
     fun generateTokenToCookie(claims: MutableMap<String, Any>, response: HttpServletResponse) {
-        val accessToken = generateToken(claims, 60)
-        val refreshToken = generateToken(claims, 60 * 24)
+        val accessToken = generateToken(claims, accessTokenExpirationHour)
+        val refreshToken = generateToken(claims, refreshTokenExpirationHour)
 
         redisService.create(claims["userId"].toString(), refreshToken, 24 * 30)
 
-        val refreshTokenCookie = Cookie("TODOLIST_REFRESHTOKEN", refreshToken)
+        val refreshTokenCookie = Cookie(refreshTokenName, refreshToken)
         refreshTokenCookie.path = "/" // 모든 경로에서, 하위 경로를 지정할 경우 해당 경로의 하위 경로에서만 접근 가능
-        refreshTokenCookie.maxAge = 60 * 60 * 24 * 30 // 유효기간(초)
+        refreshTokenCookie.maxAge =  cookieMaxAge// 유효기간(초)
         refreshTokenCookie.secure = true // 보안 채널(HTTPS)을 통해 전송되는 경우 쿠키 전송(암호화 되지 않은 요청에 쿠키 전달 X)
         refreshTokenCookie.isHttpOnly = true // 브라우저에서 쿠키 접근 X(document.cookie X), HTTP 통신으로만 접근
 
@@ -94,7 +100,7 @@ class JwtUtil(
 
         redisService.delete(userId)
 
-        val refreshTokenCookie = Cookie("TODOLIST_REFRESHTOKEN", null)
+        val refreshTokenCookie = Cookie(refreshTokenName, null)
         refreshTokenCookie.path = "/" // 모든 경로에서, 하위 경로를 지정할 경우 해당 경로의 하위 경로에서만 접근 가능
         refreshTokenCookie.maxAge = 0 // 유효기간(초)
         refreshTokenCookie.secure = true // 보안 채널(HTTPS)을 통해 전송되는 경우 쿠키 전송(암호화 되지 않은 요청에 쿠키 전달 X)
