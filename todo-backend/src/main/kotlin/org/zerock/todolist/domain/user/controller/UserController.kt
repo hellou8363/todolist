@@ -24,12 +24,13 @@ class UserController(
     }
 
     @PostMapping("/signin")
-    fun `swagger-ui에 보여지기 위함`(@RequestBody signinRequest: SigninRequest) { // 일반 회원의 로그인은 Security를 거쳐서 진행됨
+    fun signin(@RequestBody signinRequest: SigninRequest, response: HttpServletResponse) {
+        userService.signinUser(signinRequest, response)
     }
 
     @GetMapping("/signin/kakao")
     fun signinKakao(@RequestParam accessToken: String, response: HttpServletResponse) { // 소셜 로그인은 Controller에서 반환하는 값 X
-        userService.signWithKakao(accessToken, response)
+        userService.signinWithKakao(accessToken, response)
     }
 
     // TODO: 프런트 작업 후 진행 - 프런트에서 액세스 토큰까지 발급 후 넘겨주는 것으로 하려고 미구현
