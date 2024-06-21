@@ -15,20 +15,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import org.zerock.todolist.config.auth.filter.JsonUsernamePasswordAuthenticationFilter
 import org.zerock.todolist.config.auth.filter.JwtCheckFilter
-import org.zerock.todolist.config.auth.handler.CustomAuthenticationFailureHandler
-import org.zerock.todolist.config.auth.handler.CustomAuthenticationSuccessHandler
 import org.zerock.todolist.config.auth.util.JwtUtil
-import org.zerock.todolist.domain.exception.CustomAccessDeniedException
+import org.zerock.todolist.exception.CustomAccessDeniedException
 
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val userDetailsService: UserDetailsService,
-    private val customAuthenticationSuccessHandler: CustomAuthenticationSuccessHandler,
-    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler
+    private val userDetailsService: UserDetailsService
 ) {
     @Bean
     fun bCryptPasswordEncoder(): BCryptPasswordEncoder = BCryptPasswordEncoder()
@@ -40,10 +35,6 @@ class SecurityConfig(
             .cors { it.configurationSource(corsConfigurationSource()) } // cors 설정
             .addFilterBefore( // 우선 실행되어야 함
                 JwtCheckFilter(jwtUtil), UsernamePasswordAuthenticationFilter::class.java
-            )
-            .addFilterBefore( // JSON 데이터 처리
-                jsonUsernamePasswordAuthenticationFilter(),
-                UsernamePasswordAuthenticationFilter::class.java
             )
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) } // 서버 내부에서 세션 생성 X
             .formLogin { it.disable() } // 기본 로그인 폼 비활성화(기본 경로 "/login")
@@ -69,18 +60,8 @@ class SecurityConfig(
     @Bean
     fun authenticationManager(): AuthenticationManager {
         val authProvider = DaoAuthenticationProvider() // 사용자 이름과 비밀번호를 기반으로 인증을 수행하는 구성 요소
-        authProvider.setUserDetailsService(userDetailsService) // 사용자의 세부 정보를 불러오기 위한 설정
+        authProvider.setUserDetailsService(userDetailsService) // 사용자의 세부 정보를 불러오기 위한 설정(구현체인 UsrDetailsServiceImpl을 사용)
         authProvider.setPasswordEncoder(bCryptPasswordEncoder()) // 비밀번호 검증을 위한 설정
         return ProviderManager(authProvider)
-    }
-
-    @Bean
-    fun jsonUsernamePasswordAuthenticationFilter(): JsonUsernamePasswordAuthenticationFilter {
-        val jsonUsernamePasswordAuthenticationFilter = JsonUsernamePasswordAuthenticationFilter()
-        jsonUsernamePasswordAuthenticationFilter.setAuthenticationManager(authenticationManager())
-        jsonUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler)
-        jsonUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler)
-
-        return jsonUsernamePasswordAuthenticationFilter
     }
 }
