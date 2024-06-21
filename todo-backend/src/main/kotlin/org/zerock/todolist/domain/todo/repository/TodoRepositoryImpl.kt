@@ -1,5 +1,6 @@
 package org.zerock.todolist.domain.todo.repository
 
+import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -7,10 +8,11 @@ import org.springframework.stereotype.Repository
 import org.zerock.todolist.domain.comment.model.QComment
 import org.zerock.todolist.domain.todo.model.QTodo
 import org.zerock.todolist.domain.todo.model.Todo
-import org.zerock.todolist.infra.querydsl.QueryDslSupport
 
 @Repository // 외부 기능을 가져다 사용하는 것이기 때문에 어노테이션 필수
-class TodoRepositoryImpl : QueryDslSupport(), CustomTodoRepository {
+class TodoRepositoryImpl(
+    private val queryFactory: JPAQueryFactory
+) : CustomTodoRepository {
 
     private val todo = QTodo.todo
     private val comment = QComment.comment
