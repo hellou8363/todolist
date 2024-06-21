@@ -9,18 +9,16 @@ import org.zerock.todolist.domain.comment.dto.DeleteCommentRequest
 import org.zerock.todolist.domain.comment.model.Comment
 import org.zerock.todolist.domain.comment.model.toResponse
 import org.zerock.todolist.domain.comment.repository.CommentRepository
-import org.zerock.todolist.exception.CustomAccessDeniedException
-import org.zerock.todolist.exception.ModelNotFoundException
 import org.zerock.todolist.domain.todo.repository.TodoRepository
 import org.zerock.todolist.domain.user.repository.UserRepository
-import org.zerock.todolist.domain.user.service.UserService
+import org.zerock.todolist.exception.CustomAccessDeniedException
+import org.zerock.todolist.exception.ModelNotFoundException
 
 @Service
 class CommentServiceImpl(
     private val commentRepository: CommentRepository,
     private val todoRepository: TodoRepository,
-    private val userRepository: UserRepository,
-    private val userService: UserService
+    private val userRepository: UserRepository
 ) : CommentService {
     override fun getAllCommentList(): List<CommentResponse> {
         return commentRepository.findAll().map { it.toResponse() }.sortedBy { it.createdAt }.reversed()
@@ -56,21 +54,19 @@ class CommentServiceImpl(
         commentId: Long,
         request: CreateAndUpdateCommentRequest
     ): CommentResponse {
-        val comment =
-            commentRepository.findByTodoIdAndId(todoId, commentId) ?: throw ModelNotFoundException("Comment", commentId)
+        val comment = commentRepository.findByTodoIdAndId(todoId, commentId)
+            ?: throw ModelNotFoundException("Comment", commentId)
 
         if (comment.user.id != userId) {
             throw CustomAccessDeniedException("You do not have access.")
         }
 
         if (comment.writer == request.writer && comment.password == request.password) {
-            comment.content = request.content
-            comment.writer = request.writer
+            comment.update(content = request.content, writer = request.writer)
 
-            return commentRepository.save(comment).toResponse()
+            return comment.toResponse()
         } else {
             throw IllegalArgumentException("writer or password does not match.")
-
         }
     }
 

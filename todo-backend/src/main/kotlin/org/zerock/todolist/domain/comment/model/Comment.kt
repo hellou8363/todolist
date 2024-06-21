@@ -10,9 +10,9 @@ import org.zerock.todolist.domain.user.model.User
 @Entity
 @Table(name = "comment")
 class Comment private constructor(
-    var content: String,
-    var writer: String,
-    var password: String,
+    content: String,
+    writer: String,
+    val password: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "todo_id")
@@ -20,11 +20,16 @@ class Comment private constructor(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    var user: User
+    val user: User
 ) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null
+    val id: Long? = null
+
+    var content: String = content
+        protected set
+    var writer: String = writer
+        protected set
 
     companion object {
         fun from(createAndUpdateCommentRequest: CreateAndUpdateCommentRequest, todo: Todo, user: User): Comment {
@@ -36,6 +41,11 @@ class Comment private constructor(
                 user
             )
         }
+    }
+
+    fun update(content: String?, writer: String?) {
+        content?.let { this.content = it }
+        writer?.let { this.writer = it }
     }
 }
 
