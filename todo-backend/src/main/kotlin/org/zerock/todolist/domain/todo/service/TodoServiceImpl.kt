@@ -13,6 +13,7 @@ import org.zerock.todolist.domain.todo.model.Todo
 import org.zerock.todolist.domain.todo.model.toListResponse
 import org.zerock.todolist.domain.todo.model.toResponse
 import org.zerock.todolist.domain.todo.repository.TodoRepository
+import org.zerock.todolist.domain.todo.type.SearchType
 import org.zerock.todolist.domain.user.repository.UserRepository
 import org.zerock.todolist.exception.CustomAccessDeniedException
 import org.zerock.todolist.exception.ModelNotFoundException
@@ -23,12 +24,8 @@ class TodoServiceImpl(
     private val userRepository: UserRepository
 ) : TodoService {
 
-    override fun getAllTodoList(pageable: Pageable, writer: String?): Page<TodoListResponse> {
-        return if (writer != null) {
-            todoRepository.searchTodoListByWriter(writer, pageable).map { it.toListResponse() }
-        } else {
-            todoRepository.findAll(pageable).map { it.toListResponse() }
-        }
+    override fun getAllTodoList(searchType: SearchType, keyword: String, pageable: Pageable): Page<TodoListResponse> {
+        return todoRepository.search(searchType, keyword, pageable).map { it.toListResponse() }
     }
 
     override fun getTodoById(todoId: Long): TodoResponse {

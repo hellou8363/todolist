@@ -14,6 +14,7 @@ import org.zerock.todolist.domain.todo.dto.TodoListResponse
 import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.todo.dto.UpdateTodoRequest
 import org.zerock.todolist.domain.todo.service.TodoService
+import org.zerock.todolist.domain.todo.type.SearchType
 import org.zerock.todolist.infra.aop.StopWatch
 
 @RestController
@@ -24,10 +25,11 @@ class TodoController(
     @StopWatch
     @GetMapping
     fun getTodoList(
-        @RequestParam writer: String? = null,
+        @RequestParam searchType: SearchType,
+        @RequestParam keyword: String,
         @PageableDefault(page = 0, size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<TodoListResponse>> {
-        return ResponseEntity.status(HttpStatus.OK).body(todoService.getAllTodoList(pageable, writer))
+        return ResponseEntity.status(HttpStatus.OK).body(todoService.getAllTodoList(searchType, keyword, pageable))
     }
 
     @StopWatch

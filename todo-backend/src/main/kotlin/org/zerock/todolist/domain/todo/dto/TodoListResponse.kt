@@ -8,9 +8,9 @@ data class TodoListResponse(
     val id: Long,
     val title: String,
     val content: String,
-//    val userId: Long, // 프런트용
+    val userId: Long, // 프런트용
     val writer: String,
     val createdAt: LocalDateTime,
     val completed: TodoCompleted,
-    val comments: List<CommentResponse>,
+//    val comments: List<CommentResponse>,
 )
