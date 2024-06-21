@@ -74,6 +74,7 @@ dependencies {
     testImplementation("io.mockk:mockk:$mockkVersion")
 
     implementation("org.springframework.boot:spring-boot-starter-aop")
+    runtimeOnly("com.h2database:h2")
 }
 
 tasks.withType<KotlinCompile> {
