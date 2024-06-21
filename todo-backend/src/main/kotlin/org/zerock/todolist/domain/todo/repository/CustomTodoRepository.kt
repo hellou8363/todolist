@@ -8,4 +8,6 @@ import org.zerock.todolist.domain.todo.type.SearchType
 interface CustomTodoRepository {
 
     fun search(searchType: SearchType, keyword: String, pageable: Pageable): Page<Todo>
+
+    fun deleteByIsDeletedTrue()
 }

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import org.zerock.todolist.domain.todo.model.QTodo
 import org.zerock.todolist.domain.todo.model.Todo
 import org.zerock.todolist.domain.todo.model.TodoCompleted
@@ -29,15 +30,23 @@ class TodoRepositoryImpl(
 
         val totalCount = queryFactory.select(todo.count())
             .from(todo)
-            .where(where)
+            .where(todo.isDeleted.isFalse.and(where))
             .fetchOne() ?: 0L
 
+        // TODO: 동적 정렬 필요
         val contents = queryFactory.selectFrom(todo)
-            .where(where)
+            .where(todo.isDeleted.isFalse.and(where))
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
             .fetch()
 
         return PageImpl(contents, pageable, totalCount)
+    }
+
+    @Transactional
+    override fun deleteByIsDeletedTrue() {
+        queryFactory.delete(todo)
+            .where(todo.isDeleted.isTrue)
+            .execute()
     }
 }

@@ -29,7 +29,7 @@ class TodoServiceImpl(
     }
 
     override fun getTodoById(todoId: Long): TodoResponse {
-        val todo = todoRepository.findByIdOrNull(todoId) ?: throw ModelNotFoundException("Todo", todoId)
+        val todo = todoRepository.findByIdAndIsDeleted(todoId, false) ?: throw ModelNotFoundException("Todo", todoId)
         return todo.toResponse()
     }
 
