@@ -1,6 +1,8 @@
 package org.zerock.todolist.domain.todo.model
 
 import jakarta.persistence.*
+import org.hibernate.annotations.SQLDelete
+import org.hibernate.annotations.SQLRestriction
 import org.zerock.todolist.domain.BaseEntity
 import org.zerock.todolist.domain.comment.model.Comment
 import org.zerock.todolist.domain.comment.model.toResponse
@@ -10,7 +12,8 @@ import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.user.model.User
 
 @Entity
-@Table(name = "todo")
+@SQLRestriction("is_deleted = false") // org.hibernate.annotations.SQLRestriction
+@SQLDelete(sql = "UPDATE todo SET is_deleted = true WHERE id = ?") // delete 쿼리 수행 시 update 처리
 class Todo private constructor(
     title: String,
     content: String,
@@ -34,6 +37,9 @@ class Todo private constructor(
     @Enumerated(EnumType.STRING)
     var completed: TodoCompleted = TodoCompleted.FALSE
         protected set
+
+    @Column(name = "is_deleted")
+    var isDeleted: Boolean = false
 
     @OneToMany(mappedBy = "todo", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     val comments: MutableList<Comment> = mutableListOf()
