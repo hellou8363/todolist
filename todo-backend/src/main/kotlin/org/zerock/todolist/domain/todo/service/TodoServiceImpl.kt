@@ -63,7 +63,7 @@ class TodoServiceImpl(
             completed = request.completed
         )
 
-        return todoRepository.save(todo).toResponse()
+        return todo.toResponse()
     }
 
     @Transactional
