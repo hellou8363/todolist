@@ -9,6 +9,7 @@
 + [패키지 구조](#패키지-구조)
 + [결과 화면](#결과-화면)
 + [코드 설명](#코드-설명)
++ [개선 과제](#개선-과제)
 
 ## 프로젝트 소개
 Todo 관리와 댓글로 소통할 수 있는 서비스
@@ -296,3 +297,141 @@ fun deleteTokenToCookie(userId: String, response: HttpServletResponse) {
 }
 ```
 </div></details>
+
+## 개선 과제
+### 기존에 적용되어 있던 부분
+- Controller Advice로 예외 공통화 처리
+- Service 인터페이스와 구현체를 분리하여 추상화
+- CustomException 정의
+### 새로 반영된 부분
+<details>
+    <summary><b>Spring AOP 적용</b></summary><div><br/>
+
+```
+@Aspect
+@Component
+class StopWatchAspect {
+    private val logger = LoggerFactory.getLogger("Execution Time Logger")
+
+    // domain 전체에 적용되며 수행시간을 로깅
+    @Around("execution(* org.zerock.todolist.domain..*(..))")
+    fun run(joinPoint: ProceedingJoinPoint): Any? {
+        val stopWatch = StopWatch()
+
+        stopWatch.start() // 시간 체크 시작
+        // 메서드 실행(예: Service의 getTodoById())
+        val result = joinPoint.proceed() 
+        stopWatch.stop() // 시간 체크 종료
+
+        // 호출된 메서드에 대한 정보
+        val className =
+            joinPoint.signature.declaringTypeName // 패키지명.클래스명
+        val methodName = joinPoint.signature.name // 메서드명
+        val methodArguments = joinPoint.args // 메서드에 사용되는 파라미터
+
+        // 측정된 수행 시간
+        val timeElapsedMs = stopWatch.totalTimeMillis // elapsed time
+
+        // 메서드 정보와 수행 시간 출력
+        logger.info(
+            "{} - {} | Arguments: {} | Execution Time: {}ms",
+            className,
+            methodName,
+            methodArguments.joinToString(", "),
+            timeElapsedMs
+        )
+
+        return result
+    }
+}
+```
+</div></details>
+<details>
+    <summary><b>QueryDSL을 사용한 검색 기능</b></summary>
+    <br/>
+    1. 다양한 조건을 동적 쿼리로 처리<br/>
+    <li>제목 및 작성자: 검색어 포함</li>
+    <li>게시글 상태(Todo 완료 여부): 검색과 일치</li>
+    <li>N일 전 게시글: 검색과 일치</li>
+    <br/>
+    2. Pageable을 사용해 페이징 및 정렬 기능 구현<br/><br/>
+
+<div>
+
+``` 
+@Repository
+class TodoRepositoryImpl(
+    private val queryFactory: JPAQueryFactory
+) : CustomTodoRepository {
+
+    // QueryDSL 사용을 위한 Q타입 클래스 객체
+    private val todo = QTodo.todo
+
+    override fun search(searchType: SearchType, keyword: String, pageable: Pageable): Page<Todo> {
+
+        // 검색조건(SearchType)에 따라 where절에 추가될 쿼리
+        val where = when (searchType) {
+            SearchType.NONE -> null
+            SearchType.TITLE -> todo.title.like("%$keyword%") // 키워드 포함
+            SearchType.WRITER -> todo.writer.like("%$keyword%") // 키워드 포함
+            SearchType.STATE -> todo.completed.eq(TodoCompleted.valueOf(keyword)) // 정확히 일치(TRUE or FALSE)
+            SearchType.DAYSAGO -> // 현재 날짜 - 작성일자 = N일전
+                Expressions.currentTimestamp().dayOfMonth()
+                    .subtract(todo.createdAt.dayOfMonth())
+                    .eq(keyword.toInt())
+        }
+
+        // 데이터 전체 개수
+        val totalCount = queryFactory.select(todo.count())
+            .from(todo)
+            // Soft Delete 처리된 데이터 제외 + 검색 조건과 일치하는 데이터
+            .where(todo.isDeleted.isFalse.and(where)) 
+            .fetchOne() ?: 0L
+
+        val contents = queryFactory.selectFrom(todo)
+            .where(todo.isDeleted.isFalse.and(where))
+            // 정렬 기준에 따라 데이터를 정렬
+            .orderBy(*QueryDslUtil.getOrderSpecifier(todo, pageable.sort))
+            .offset(pageable.offset) // 가져올 데이터의 시작 번호
+            .limit(pageable.pageSize.toLong()) // 가져올 데이터의 개수
+            .fetch()
+
+        return PageImpl(contents, pageable, totalCount)
+    }
+}
+```
+
+search 메서드 내 orderBy에서 호출하는 메서드
+```
+class QueryDslUtil {
+
+    companion object {
+        fun getOrderSpecifier(qEntity: EntityPathBase<*>, sort: Sort): Array<OrderSpecifier<*>> {
+            val orders = arrayListOf<OrderSpecifier<*>>()
+
+            sort.forEach {
+                orders.add(
+                    OrderSpecifier(
+                        // 정렬 조건이 오름차순이면 ASC, 아니면 DESC
+                        if (it.isAscending) Order.ASC else Order.DESC,
+                        
+                        // 정렬 기준 컬럼의 Path
+                        PathBuilder(qEntity.type, qEntity.metadata)
+                            .get(it.property) as Expression<out Comparable<*>> 
+                    )
+                )
+            }
+
+            return orders.toTypedArray()
+        }
+    }
+}
+```
+</div>
+</details>
+
+### 진행중
+- 테스트 코드 작성(Controller, Service, Repository)
+- AWS S3를 이용해 이미지 업로드 기능 구현
+- AWS EC2를 이용해 애플리케이션 배포
+
