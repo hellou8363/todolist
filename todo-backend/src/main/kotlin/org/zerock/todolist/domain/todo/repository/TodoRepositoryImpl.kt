@@ -11,6 +11,7 @@ import org.zerock.todolist.domain.todo.model.QTodo
 import org.zerock.todolist.domain.todo.model.Todo
 import org.zerock.todolist.domain.todo.model.TodoCompleted
 import org.zerock.todolist.domain.todo.type.SearchType
+import org.zerock.todolist.infra.querydsl.QueryDslUtil
 
 @Repository // 외부 기능을 가져다 사용하는 것이기 때문에 어노테이션 필수
 class TodoRepositoryImpl(
@@ -33,9 +34,9 @@ class TodoRepositoryImpl(
             .where(todo.isDeleted.isFalse.and(where))
             .fetchOne() ?: 0L
 
-        // TODO: 동적 정렬 필요
         val contents = queryFactory.selectFrom(todo)
             .where(todo.isDeleted.isFalse.and(where))
+            .orderBy(*QueryDslUtil.getOrderSpecifier(todo, pageable.sort).toTypedArray())
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
             .fetch()
