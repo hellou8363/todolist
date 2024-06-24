@@ -78,7 +78,9 @@ CREATE TABLE todo (
     content TEXT NOT NULL,
     writer TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    completed TEXT NOT NULL
+    completed TEXT NOT NULL,
+    user_id BIGINT NOT NULL,
+    is_deleted BOOLEAN NOT NULL
 );
 
 CREATE TABLE comment (
@@ -88,6 +90,7 @@ CREATE TABLE comment (
     password TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     todo_id BIGINT,
+    user_id BIGINT,
     constraint fk_comment_todo FOREIGN KEY (todo_id) REFERENCES todo ON DELETE CASCADE
 );
 
@@ -96,7 +99,8 @@ CREATE TABLE todo_user (
     email TEXT NOT NULL UNIQUE,
     nickname TEXT NOT NULL,
     password TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    join_type TEXT NOT NULL
 );
 ```
 ## 패키지 구조
