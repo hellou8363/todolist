@@ -15,14 +15,13 @@ import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.todo.dto.UpdateTodoRequest
 import org.zerock.todolist.domain.todo.service.TodoService
 import org.zerock.todolist.domain.todo.type.SearchType
-import org.zerock.todolist.infra.aop.StopWatch
 
 @RestController
 @RequestMapping("/todos")
 class TodoController(
     private val todoService: TodoService
 ) {
-    @StopWatch
+
     @GetMapping
     fun getTodoList(
         @RequestParam searchType: SearchType,
@@ -32,7 +31,6 @@ class TodoController(
         return ResponseEntity.status(HttpStatus.OK).body(todoService.getAllTodoList(searchType, keyword, pageable))
     }
 
-    @StopWatch
     @GetMapping("/{todoId}")
     fun getTodo(@PathVariable todoId: Long): ResponseEntity<TodoResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(todoService.getTodoById(todoId))
