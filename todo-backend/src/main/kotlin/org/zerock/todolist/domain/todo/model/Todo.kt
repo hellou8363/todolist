@@ -12,7 +12,6 @@ import org.zerock.todolist.domain.todo.dto.TodoResponse
 import org.zerock.todolist.domain.user.model.User
 
 @Entity
-@SQLRestriction("is_deleted = false") // org.hibernate.annotations.SQLRestriction
 @SQLDelete(sql = "UPDATE todo SET is_deleted = true WHERE id = ?") // delete 쿼리 수행 시 update 처리
 class Todo private constructor(
     title: String,
@@ -40,6 +39,7 @@ class Todo private constructor(
 
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false
+        protected set
 
     @OneToMany(mappedBy = "todo", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     val comments: MutableList<Comment> = mutableListOf()
