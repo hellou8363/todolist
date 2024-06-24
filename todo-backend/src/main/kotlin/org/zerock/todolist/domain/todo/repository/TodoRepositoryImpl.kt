@@ -36,7 +36,7 @@ class TodoRepositoryImpl(
 
         val contents = queryFactory.selectFrom(todo)
             .where(todo.isDeleted.isFalse.and(where))
-            .orderBy(*QueryDslUtil.getOrderSpecifier(todo, pageable.sort).toTypedArray())
+            .orderBy(*QueryDslUtil.getOrderSpecifier(todo, pageable.sort))
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
             .fetch()

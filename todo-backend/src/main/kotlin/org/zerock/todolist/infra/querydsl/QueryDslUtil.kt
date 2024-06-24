@@ -10,7 +10,7 @@ import org.springframework.data.domain.Sort
 class QueryDslUtil {
 
     companion object {
-        fun getOrderSpecifier(qEntity: EntityPathBase<*>, sort: Sort): ArrayList<OrderSpecifier<*>> {
+        fun getOrderSpecifier(qEntity: EntityPathBase<*>, sort: Sort): Array<OrderSpecifier<*>> {
             val orders = arrayListOf<OrderSpecifier<*>>()
 
             sort.forEach {
@@ -18,12 +18,12 @@ class QueryDslUtil {
                     OrderSpecifier(
                         if (it.isAscending) Order.ASC else Order.DESC,
                         PathBuilder(qEntity.type, qEntity.metadata)
-                            .get(it.property) as Expression<out Comparable<*>>
+                            .get(it.property) as Expression<out Comparable<*>> // OrderSpecifier<T extends Comparable>
                     )
                 )
             }
 
-            return orders
+            return orders.toTypedArray()
         }
     }
 }
