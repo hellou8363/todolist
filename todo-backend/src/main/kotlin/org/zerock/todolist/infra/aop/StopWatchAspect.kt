@@ -6,15 +6,13 @@ import org.aspectj.lang.annotation.Aspect
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.util.StopWatch
-import org.springframework.web.context.request.RequestContextHolder
-import org.springframework.web.context.request.ServletRequestAttributes
 
 @Aspect
 @Component
 class StopWatchAspect {
     private val logger = LoggerFactory.getLogger("Execution Time Logger")
-
-    @Around("@annotation(org.zerock.todolist.infra.aop.StopWatch)")
+    
+    @Around("execution(* org.zerock.todolist.domain..*(..))")
     fun run(joinPoint: ProceedingJoinPoint): Any? {
         val stopWatch = StopWatch()
 
