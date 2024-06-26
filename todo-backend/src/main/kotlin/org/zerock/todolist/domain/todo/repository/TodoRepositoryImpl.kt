@@ -26,7 +26,10 @@ class TodoRepositoryImpl(
             SearchType.WRITER -> todo.writer.like("%$keyword%")
             SearchType.STATE -> todo.completed.eq(TodoCompleted.valueOf(keyword))
             SearchType.DAYSAGO ->
-                Expressions.currentTimestamp().dayOfMonth().subtract(todo.createdAt.dayOfMonth()).eq(keyword.toInt())
+                Expressions
+                    .currentTimestamp().dayOfMonth()
+                    .subtract(todo.createdAt.dayOfMonth())
+                    .eq(keyword.toInt())
         }
 
         val totalCount = queryFactory.select(todo.count())
