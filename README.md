@@ -429,9 +429,107 @@ class QueryDslUtil {
 ```
 </div>
 </details>
+<details>
+    <summary><b>AWS S3를 이용해 이미지 업로드 기능 구현</b></summary><div><br/>
+1. 이미지 업로드를 위한 S3 Service 클래스 추가
+
+```
+@Service
+class S3Service(
+    private val s3Operations: S3Operations,
+    @Value("\${spring.cloud.aws.s3.bucket}")
+    private val bucket: String,
+) {
+
+    @Transactional
+    fun upload(file: MultipartFile, key: String): String {
+        // 업로드할 이미지 확장자 목록 정의
+        val imageTypes = listOf("jpg", "jpeg", "png", "gif", "bmp")
+
+        // contentType의 확장자 부분만 추출(예: image/png -> png)해 미리 정의한 확장자와 일치하는지 확인
+        if (!imageTypes.contains(file.contentType.toString().split("/")[1])) {
+            throw IllegalArgumentException("이미지 파일만 업로드가 가능합니다.") // 일치하지 않을 경우 예외 발생
+        }
+
+        file.inputStream.use { it -> // use: 블록 내 코드 실행 후 예외 발생 여부에 관계없이 close
+            return s3Operations.upload(
+                // 버킷명, key(버킷 업로드 시 적용되는 파일명), 업로드할 파일(InputStream), 파일의 메타데이터(ObjectMetadata)
+                bucket, key, it,
+                ObjectMetadata.builder().contentType(file.contentType).build()
+            ).url.toString() // 업로드된 URL을 반환
+        }
+    }
+}
+```
+
+<br/>
+2. 업로드 요청 파일의 크기가 설정된 파일 크기를 초과하는 경우에 대해 2개의 예외 클래스를 추가
+
+```
+class CustomFileSizeLimitExceededException(
+    message: String, actual: Long, permitted: Long
+) :
+    FileSizeLimitExceededException(message, actual, permitted) {
+
+    override val message: String
+        get() = "업로드 가능한 이미지는 최대 크기는 ${permittedSize / (1024 * 1024)}MB 입니다."
+}
+
+class CustomSizeLimitExceededException(
+    message: String, actual: Long, permitted: Long
+) : SizeLimitExceededException(message, actual, permitted) {
+
+    override val message: String
+        get() = "업로드 가능한 이미지의 전체 크기는 ${permittedSize / (1024 * 1024)}MB 입니다."
+}
+```
+
+<br/>
+3. 위 두 개의 예외 클래스를 GlobalExceptionHandler 클래스에 추가
+
+```
+@RestControllerAdvice
+class GlobalExceptionHandler {
+
+    // ...
+
+    @ExceptionHandler(FileSizeLimitExceededException::class)
+    fun handleFileSizeLimitExceededException(e: FileSizeLimitExceededException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(
+                ErrorResponse(
+                    e.message?.let {
+                        CustomFileSizeLimitExceededException(
+                            it, // message
+                            e.actualSize, // 실제 파일 크기
+                            e.permittedSize // 최대 허용 파일 크기
+                        ).message
+                    }
+                )
+            )
+    }
+
+    @ExceptionHandler(SizeLimitExceededException::class)
+    fun handleSizeLimitExceededException(e: SizeLimitExceededException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(
+                ErrorResponse(
+                    e.message?.let {
+                        CustomSizeLimitExceededException(
+                            it, // message
+                            e.actualSize, // 실제 파일 크기
+                            e.permittedSize // 최대 허용 파일 크기
+                        ).message
+                    }
+                )
+            )
+    }
+}
+```
+</div>
+</details>
 
 ### 진행중
 - 테스트 코드 작성(Controller, Service, Repository)
-- AWS S3를 이용해 이미지 업로드 기능 구현
 - AWS EC2를 이용해 애플리케이션 배포
 
