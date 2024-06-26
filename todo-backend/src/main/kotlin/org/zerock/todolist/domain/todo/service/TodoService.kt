@@ -2,6 +2,7 @@ package org.zerock.todolist.domain.todo.service
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.web.multipart.MultipartFile
 import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
 import org.zerock.todolist.domain.todo.dto.TodoListResponse
 import org.zerock.todolist.domain.todo.dto.TodoResponse
@@ -14,7 +15,7 @@ interface TodoService {
 
     fun getTodoById(todoId: Long): TodoResponse
 
-    fun createTodo(userId: Long, request: CreateTodoRequest): TodoResponse
+    fun createTodo(userId: Long, request: CreateTodoRequest, file: MultipartFile?): TodoResponse
 
     fun updateTodo(todoId: Long, userId: Long, request: UpdateTodoRequest): TodoResponse
 

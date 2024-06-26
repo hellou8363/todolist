@@ -11,5 +11,6 @@ data class TodoResponse(
     val writer: String,
     val createdAt: LocalDateTime,
     val completed: TodoCompleted,
+    val imageLink: String?,
     val comments: List<CommentResponse>,
 )

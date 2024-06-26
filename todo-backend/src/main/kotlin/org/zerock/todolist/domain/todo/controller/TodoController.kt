@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
 import org.zerock.todolist.domain.todo.dto.TodoListResponse
 import org.zerock.todolist.domain.todo.dto.TodoResponse
@@ -39,9 +40,10 @@ class TodoController(
     @PostMapping
     fun createTodo(
         @AuthenticationPrincipal userId: Long,
-        @Valid @RequestBody createTodoRequest: CreateTodoRequest,
+        @Valid @RequestPart createTodoRequest: CreateTodoRequest,
+        @RequestPart file: MultipartFile?
     ): ResponseEntity<TodoResponse> {
-        return ResponseEntity.status(HttpStatus.CREATED).body(todoService.createTodo(userId, createTodoRequest))
+        return ResponseEntity.status(HttpStatus.CREATED).body(todoService.createTodo(userId, createTodoRequest, file))
     }
 
     @PutMapping("/{todoId}")

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
 import org.zerock.todolist.domain.todo.dto.TodoListResponse
 import org.zerock.todolist.domain.todo.dto.TodoResponse
@@ -17,11 +18,13 @@ import org.zerock.todolist.domain.todo.type.SearchType
 import org.zerock.todolist.domain.user.repository.UserRepository
 import org.zerock.todolist.exception.CustomAccessDeniedException
 import org.zerock.todolist.exception.ModelNotFoundException
+import org.zerock.todolist.infra.aws.S3Service
 
 @Service
 class TodoServiceImpl(
     private val todoRepository: TodoRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val s3Service: S3Service
 ) : TodoService {
 
     override fun getAllTodoList(searchType: SearchType, keyword: String, pageable: Pageable): Page<TodoListResponse> {
@@ -34,15 +37,22 @@ class TodoServiceImpl(
     }
 
     @Transactional
-    override fun createTodo(userId: Long, request: CreateTodoRequest): TodoResponse {
+    override fun createTodo(userId: Long, request: CreateTodoRequest, file: MultipartFile?): TodoResponse {
         val user = userRepository.findByIdOrNull(userId) ?: throw ModelNotFoundException("User", userId)
 
-        return todoRepository.save(
+        val result = todoRepository.save(
             Todo.from(
                 request,
                 user
             )
-        ).toResponse()
+        )
+
+        // file의 key로 todo id를 사용
+        file?.let {
+            result.imageUpload(s3Service.upload(it, result.id.toString()))
+        }
+
+        return result.toResponse()
     }
 
     @Transactional
