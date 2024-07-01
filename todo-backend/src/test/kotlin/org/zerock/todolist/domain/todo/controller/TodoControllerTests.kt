@@ -88,19 +88,20 @@ class TodoControllerTest @Autowired constructor(
             }
         }
 
-//        context("존재하지 않는 ID를 요청할 때") {
-//            it("Status Code 400을 응답한다.") {
-//                val todoId = 10L
-//
-//                every { todoService.getTodoById(any()) } returns throw ModelNotFoundException("Todo", todoId)
-//
-//                val result = mockMvc.perform(
-//                    get("/todos/$todoId") // org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-//                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                ).andReturn()
-//
-//                result.response.status shouldBe 400
-//            }
-//        }
+        context("존재하지 않는 ID를 요청할 때") {
+            it("Status Code 400을 응답한다.") {
+                val todoId = 10L
+
+                // ControllerAdvice로 갈 줄 알았는데 아님
+                every { todoService.getTodoById(any()) } throws ModelNotFoundException("Todo", todoId)
+
+                val result = mockMvc.perform(
+                    get("/todos/$todoId") // org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                ).andReturn()
+
+                result.response.status shouldBe 400
+            }
+        }
     }
 })
