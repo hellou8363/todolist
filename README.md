@@ -139,8 +139,10 @@ org.zerock.todolist
 ```
 
 ## 결과 화면
-### 회원가입 및 로그인 화면
-![todolist_회원가입및로그인화면](https://github.com/hellou8363/todolist/assets/89592727/7c01d0a5-93f4-4101-a943-1419019fdea3)
+<details>
+    <summary><b>회원가입 및 로그인 화면</b></summary>
+    <img src="https://github.com/hellou8363/todolist/assets/89592727/7c01d0a5-93f4-4101-a943-1419019fdea3">
+</details>
 
 ## 코드 설명
 <details>
@@ -528,8 +530,9 @@ class GlobalExceptionHandler {
 ```
 </div>
 </details>
-
-### 진행중
-- 테스트 코드 작성(Controller, Service, Repository)
-- AWS EC2를 이용해 애플리케이션 배포
-
+- 테스트 코드 작성
+    - TodoController
+    - TodoService
+    - TodoRepository
+<br />
+<a href="http://52.78.60.170/swagger-ui/index.html">AWS EC2를 이용해 애플리케이션 배포</a>
