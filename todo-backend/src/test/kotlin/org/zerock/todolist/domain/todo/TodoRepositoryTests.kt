@@ -28,12 +28,14 @@ class TodoRepositoryTests @Autowired constructor(
 ) {
     init {
         userRepository.save(user) // 모든 테스트에서 공통으로 사용되는 User
+        todoRepository.deleteAll() // 전체 테스트 시 필요
+        todoRepository.saveAllAndFlush(DEFAULT_TODO_LIST)
     }
 
     @Test
     fun `SearchType이 NONE일 경우 전체 데이터 조회되는지 확인`() {
         // GIVEN
-        todoRepository.saveAllAndFlush(DEFAULT_TODO_LIST)
+//        todoRepository.saveAllAndFlush(DEFAULT_TODO_LIST)
 
         // WHEN
         val result1 = todoRepository.search(SearchType.NONE, "", Pageable.ofSize(10))
@@ -49,7 +51,7 @@ class TodoRepositoryTests @Autowired constructor(
     @Test
     fun `SearchType이 NONE이 아닌 경우 Keyword 에 의해 검색되는지 결과 확인`() {
         // GIVEN
-        todoRepository.saveAllAndFlush(DEFAULT_TODO_LIST)
+//        todoRepository.saveAllAndFlush(DEFAULT_TODO_LIST)
 
         // WHEN
         val result = todoRepository.search(SearchType.TITLE, "10", Pageable.ofSize(10))
@@ -61,7 +63,7 @@ class TodoRepositoryTests @Autowired constructor(
     @Test
     fun `Keyword에 의해 조회된 결과가 0건일 경우 결과 확인`() {
         // GIVEN
-        todoRepository.saveAllAndFlush(DEFAULT_TODO_LIST)
+//        todoRepository.saveAllAndFlush(DEFAULT_TODO_LIST)
 
         // WHEN
         val result = todoRepository.search(SearchType.STATE, "TRUE", Pageable.ofSize(10))
@@ -71,9 +73,9 @@ class TodoRepositoryTests @Autowired constructor(
     }
 
     @Test
-    fun `조회된 결과가 10개, PageSize 5일 때 0Page 결과 확인`() {
+    fun `조회된 결과가 10개, PageSize 6일 때 0Page 결과 확인`() {
         // GIVEN
-        todoRepository.saveAllAndFlush(DEFAULT_TODO_LIST)
+//        todoRepository.saveAllAndFlush(DEFAULT_TODO_LIST)
 
         // WHEN
         val result = todoRepository.search(SearchType.WRITER, "Writer", PageRequest.of(0, 6))
@@ -87,9 +89,9 @@ class TodoRepositoryTests @Autowired constructor(
     }
 
     @Test
-    fun `조회된 결과가 10개, PageSize 5일 때 1Page 결과 확인`() {
+    fun `조회된 결과가 10개, PageSize 6일 때 1Page 결과 확인`() {
         // GIVEN
-        todoRepository.saveAllAndFlush(DEFAULT_TODO_LIST)
+//        todoRepository.saveAllAndFlush(DEFAULT_TODO_LIST)
 
         // WHEN
         val result = todoRepository.search(SearchType.WRITER, "Writer", PageRequest.of(1, 6))
@@ -105,11 +107,10 @@ class TodoRepositoryTests @Autowired constructor(
     companion object {
         private val user = User.from(
             CreateUserRequest(
-                email = "test@test.com",
-                nickname = "test-user",
-                password = "test1234",
-            ),
-            joinType = "EMAIL"
+                email = "test@naver.com",
+                nickname = "yoyo",
+                password = "1234"
+            ), joinType = "EMAIL"
         )
 
         private val DEFAULT_TODO_LIST = listOf(

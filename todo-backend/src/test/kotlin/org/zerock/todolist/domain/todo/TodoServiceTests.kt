@@ -9,17 +9,21 @@ import io.mockk.mockk
 import org.zerock.todolist.domain.todo.dto.CreateTodoRequest
 import org.zerock.todolist.domain.todo.model.Todo
 import org.zerock.todolist.domain.todo.repository.TodoRepository
+import org.zerock.todolist.domain.todo.service.TodoService
 import org.zerock.todolist.domain.todo.service.TodoServiceImpl
 import org.zerock.todolist.domain.user.dto.CreateUserRequest
 import org.zerock.todolist.domain.user.model.User
 import org.zerock.todolist.domain.user.repository.UserRepository
 import org.zerock.todolist.exception.ModelNotFoundException
+import org.zerock.todolist.infra.aws.S3Service
 
 
 class TodoServiceTests : BehaviorSpec({
 
     val todoRepository: TodoRepository = mockk<TodoRepository>()
     val userRepository: UserRepository = mockk<UserRepository>()
+    val s3Service: S3Service = mockk<S3Service>()
+    val todoService = TodoServiceImpl(todoRepository, userRepository, s3Service)
 
     val savedTodo = Todo.from(
         CreateTodoRequest(
@@ -41,15 +45,13 @@ class TodoServiceTests : BehaviorSpec({
     every { todoRepository.findByIdAndIsDeleted(1L, false) } returns savedTodo
     every { todoRepository.findByIdAndIsDeleted(10L, false) } returns null
 
-    val todoService = TodoServiceImpl(todoRepository, userRepository)
 
-    Given("saved todo id") {
-        val targetTodoId = 1L
-
-        When("todoRepository findById") {
+    Given("todo가 존재할 때") {
+        When("해당 todo를 요청하면") {
+            val targetTodoId = 1L
             val result = todoService.getTodoById(targetTodoId)
 
-            Then("result should not be null") {
+            Then("todo 정보로 응답한다.") {
                 result shouldNotBe null
                 result.let {
                     it.id shouldBe savedTodo.id
@@ -61,11 +63,11 @@ class TodoServiceTests : BehaviorSpec({
         }
     }
 
-    Given("not saved todo id") {
-        val nonTargetTodoId = 10L
+    Given("존재하지 않는 todo에 대해") {
+        When("해당 todo를 요청하면") {
+            Then("ModelNotFoundException이 발생해야 한다.") {
+                val nonTargetTodoId = 10L
 
-        When("todoRepository findById") {
-            Then("result should be null") {
                 shouldThrow<ModelNotFoundException> {
                     todoService.getTodoById(nonTargetTodoId)
                 }
