@@ -530,9 +530,12 @@ class GlobalExceptionHandler {
 ```
 </div>
 </details>
-- 테스트 코드 작성
-    - TodoController
-    - TodoService
-    - TodoRepository
+- <b>테스트 코드 작성</b><br/>
+    - TodoController<br/>
+    - TodoService<br/>
+    - TodoRepository<br/>
 <br />
-<a href="http://52.78.60.170/swagger-ui/index.html">AWS EC2를 이용해 애플리케이션 배포</a>
+<b><a href="http://todolist-env-1.eba-bgajgr3g.ap-northeast-2.elasticbeanstalk.com/swagger-ui/index.html">AWS EC2를 이용해 애플리케이션 배포</a></b><br/>
+💡파일 업로드의 경우 PostMan으로 테스트 해야 함<br/>
+<img src="https://github.com/hellou8363/todolist/assets/89592727/a14610af-c506-4da8-9813-ac3a52655fae"/>
+
